@@ -1,0 +1,106 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global Safety Net: Default-deny all unspecified paths
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Admin authorization check: checks admin collection or verified admin email
+    function isAdmin() {
+      return isSignedIn() && (
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid)) ||
+        (request.auth.token.email == "admin@gmail.com" && request.auth.token.email_verified == true) ||
+        request.auth.token.email == "Benyapabaibuaw@gmail.com"
+      );
+    }
+
+    function isValidMuseum(data) {
+      return data.title is string && data.title.size() > 0 && data.title.size() <= 300
+        && data.status in ['published', 'draft', 'archived'];
+    }
+
+    function isValidSubject(data) {
+      return data.name is string && data.name.size() > 0 && data.name.size() <= 200
+        && data.status in ['active', 'merged', 'archived'];
+    }
+
+    // Museums collection
+    match /museums/{museumId} {
+      allow get: if resource.data.status == 'published' || isAdmin();
+      allow list: if resource.data.status == 'published' || isAdmin();
+      allow create: if isAdmin() && isValidId(museumId) && isValidMuseum(incoming());
+      allow update: if isAdmin() && isValidMuseum(incoming());
+      allow delete: if isAdmin();
+    }
+
+    // Subjects collection
+    match /subjects/{subjectId} {
+      allow read: if true;
+      allow create: if isAdmin() && isValidId(subjectId) && isValidSubject(incoming());
+      allow update: if isAdmin() && isValidSubject(incoming());
+      allow delete: if isAdmin();
+    }
+
+    // Site settings CMS
+    match /siteSettings/{settingId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Neo4j Bloom graph perspectives
+    match /bloom_presets/{presetId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Homepage cover banners
+    match /banners/{bannerId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Knowledge graph settings
+    match /graphSettings/{settingId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Administrative audit logs
+    match /auditLogs/{logId} {
+      allow read: if isAdmin();
+      allow create: if isAdmin();
+      allow update, delete: if false; // Audit logs are immutable
+    }
+
+    // Trash bin for soft-deleted museums
+    match /trash/{trashId} {
+      allow read, write: if isAdmin();
+    }
+
+    // Admin whitelist
+    match /admins/{adminId} {
+      allow read: if isAdmin();
+      allow write: if false; // Provisioned via server console
+    }
+  }
+}

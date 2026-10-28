@@ -1,0 +1,6 @@
+{
+  "name": "MUSEUM ATLAS THAILAND — ภูมิปัญญาไทยในพิพิธภัณฑ์",
+  "description": "แพลตฟอร์มสำรวจข้อมูลพิพิธภัณฑ์และแผนผังองค์ความรู้ภูมิปัญญาไทย ค้นพบประวัติศาสตร์และวัฒนธรรมผ่าน Knowledge Graph และข้อมูลพิพิธภัณฑ์ 1,574 แห่งทั่วประเทศ",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

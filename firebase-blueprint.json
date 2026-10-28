@@ -1,0 +1,151 @@
+{
+  "entities": {
+    "Museum": {
+      "title": "Museum",
+      "description": "Thai Museum record from Princess Maha Chakri Sirindhorn Anthropology Centre dataset",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "sourceId": { "type": "string", "maxLength": 64 },
+        "type": { "type": "string", "maxLength": 100 },
+        "title": { "type": "string", "maxLength": 300, "minLength": 1 },
+        "creator": { "type": "string", "maxLength": 300 },
+        "provenance": { "type": "string", "maxLength": 1000 },
+        "subjectRaw": { "type": "string", "maxLength": 2000 },
+        "subjectList": { "type": "array" },
+        "spatial": { "type": "string", "maxLength": 1000 },
+        "province": { "type": "string", "maxLength": 100 },
+        "temporal": { "type": "string", "maxLength": 100 },
+        "language": { "type": "string", "maxLength": 100 },
+        "rights": { "type": "string", "maxLength": 500 },
+        "license": { "type": "string", "maxLength": 500 },
+        "sourceUri": { "type": "string", "maxLength": 500 },
+        "imageUrl": { "type": "string", "maxLength": 1000 },
+        "imageAlt": { "type": "string", "maxLength": 300 },
+        "imageRights": { "type": "string", "maxLength": 300 },
+        "status": { "type": "string", "enum": ["published", "draft", "archived"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "title", "status"]
+    },
+    "Subject": {
+      "title": "Subject",
+      "description": "Subject / Keyword classification entity for Thai museums",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 200, "minLength": 1 },
+        "normalizedKey": { "type": "string", "maxLength": 200 },
+        "count": { "type": "number" },
+        "status": { "type": "string", "enum": ["active", "merged", "archived"] },
+        "mergedIntoId": { "type": "string", "maxLength": 128 }
+      },
+      "required": ["id", "name", "status"]
+    },
+    "GraphBloomPreset": {
+      "title": "GraphBloomPreset",
+      "description": "Pre-built Neo4j Bloom perspective and knowledge graph layout configuration",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 200, "minLength": 1 },
+        "description": { "type": "string", "maxLength": 1000 },
+        "neo4jUrl": { "type": "string", "maxLength": 1000 },
+        "cypherQuery": { "type": "string", "maxLength": 2000 },
+        "layout": { "type": "string", "enum": ["cose", "concentric", "circle", "breadthfirst", "radial"] },
+        "category": { "type": "string", "maxLength": 50 },
+        "focusType": { "type": "string", "maxLength": 50 },
+        "focusSubject": { "type": "string", "maxLength": 200 },
+        "maxNodes": { "type": "number" },
+        "badgeText": { "type": "string", "maxLength": 100 },
+        "colorTheme": { "type": "string", "maxLength": 50 },
+        "active": { "type": "boolean" },
+        "order": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "name", "layout", "active"]
+    },
+    "BannerSlide": {
+      "title": "BannerSlide",
+      "description": "Homepage full-cover banner slide configuration",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "maxLength": 300, "minLength": 1 },
+        "subtitle": { "type": "string", "maxLength": 1000 },
+        "tag": { "type": "string", "maxLength": 100 },
+        "imageUrl": { "type": "string", "maxLength": 1000 },
+        "ctaText": { "type": "string", "maxLength": 100 },
+        "ctaLink": { "type": "string", "maxLength": 100 },
+        "secondaryCtaText": { "type": "string", "maxLength": 100 },
+        "secondaryCtaLink": { "type": "string", "maxLength": 100 },
+        "badgeText": { "type": "string", "maxLength": 100 },
+        "order": { "type": "number" },
+        "active": { "type": "boolean" }
+      },
+      "required": ["id", "title", "active"]
+    },
+    "SiteSettings": {
+      "title": "SiteSettings",
+      "description": "Global CMS settings for Echoes of Siam",
+      "type": "object",
+      "properties": {
+        "heroTitle": { "type": "string", "maxLength": 200 },
+        "heroSubtitle": { "type": "string", "maxLength": 500 },
+        "tagline": { "type": "string", "maxLength": 200 },
+        "featuredMuseumIds": { "type": "array" },
+        "featuredSubjectIds": { "type": "array" },
+        "announcement": { "type": "string", "maxLength": 500 },
+        "announcementEnabled": { "type": "boolean" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "AuditLog": {
+      "title": "AuditLog",
+      "description": "Audit record of administrative modifications",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "action": { "type": "string", "maxLength": 100 },
+        "targetCollection": { "type": "string", "maxLength": 100 },
+        "targetId": { "type": "string", "maxLength": 128 },
+        "details": { "type": "string", "maxLength": 2000 },
+        "adminEmail": { "type": "string", "maxLength": 200 },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "action", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/museums/{museumId}": {
+      "schema": { "$ref": "#/entities/Museum" },
+      "description": "All 1,574 Thai museum records"
+    },
+    "/subjects/{subjectId}": {
+      "schema": { "$ref": "#/entities/Subject" },
+      "description": "Extracted cultural and wisdom subjects"
+    },
+    "/bloom_presets/{presetId}": {
+      "schema": { "$ref": "#/entities/GraphBloomPreset" },
+      "description": "Pre-built Neo4j Bloom perspectives and knowledge graph configurations"
+    },
+    "/banners/{bannerId}": {
+      "schema": { "$ref": "#/entities/BannerSlide" },
+      "description": "Homepage hero cover banners"
+    },
+    "/siteSettings/{settingId}": {
+      "schema": { "$ref": "#/entities/SiteSettings" },
+      "description": "Site header, hero, and homepage configuration"
+    },
+    "/auditLogs/{logId}": {
+      "schema": { "$ref": "#/entities/AuditLog" },
+      "description": "Administrative audit trail"
+    },
+    "/trash/{itemId}": {
+      "schema": { "$ref": "#/entities/Museum" },
+      "description": "Soft-deleted museum records for recovery"
+    }
+  }
+}

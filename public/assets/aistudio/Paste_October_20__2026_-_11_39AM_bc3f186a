@@ -1,0 +1,1393 @@
+# MASTER PROMPT: MUSEUM ATLAS THAILAND
+## ภูมิปัญญาไทยในพิพิธภัณฑ์ — Museum Knowledge Discovery Platform
+
+คุณคือ Senior Full-Stack Developer, UI/UX Designer, Data Engineer, Knowledge Graph Engineer และ Firebase Security Engineer ที่รับผิดชอบการพัฒนาเว็บไซต์ฐานข้อมูลพิพิธภัณฑ์ไทยอย่างครบวงจร
+
+ฉันต้องการสร้างเว็บไซต์ **MUSEUM ATLAS THAILAND – ภูมิปัญญาไทยในพิพิธภัณฑ์** ซึ่งเป็นแพลตฟอร์มสำรวจข้อมูลพิพิธภัณฑ์ หัวเรื่อง ภูมิปัญญา ประวัติศาสตร์ วัฒนธรรม และความเชื่อมโยงขององค์ความรู้ในประเทศไทย เว็บไซต์ต้องมีความเป็น Digital Archive ที่ทันสมัย สวยงาม ใช้งานง่าย เชื่อถือได้ และสามารถพัฒนาต่อเป็นระบบค้นพบองค์ความรู้ด้วย Knowledge Graph ได้
+
+ฉันจะให้ไฟล์ ZIP ที่บรรจุชุดข้อมูลพิพิธภัณฑ์เป็นแหล่งข้อมูลหลัก โปรดตรวจสอบไฟล์จริงก่อนเริ่มเขียนโค้ด ห้ามสมมติว่าข้อมูลครบถ้วนหรือมีโครงสร้างตรงตามที่คาดไว้
+
+เป้าหมายไม่ใช่เพียงสร้างหน้าเว็บไซต์ตัวอย่าง แต่ต้องพัฒนาแอปพลิเคชันที่มีโครงสร้างใช้งานได้จริง เชื่อมต่อฐานข้อมูลจริง มีระบบผู้ดูแลที่ปลอดภัย มีการจัดการข้อมูลและตรวจสอบข้อผิดพลาดได้
+
+---
+
+# 1. กฎสำคัญก่อนเริ่มพัฒนา
+
+ก่อนแก้ไขหรือสร้างโค้ด ให้ดำเนินการตามลำดับต่อไปนี้
+
+1. ตรวจสอบไฟล์ ZIP ที่แนบมา ระบุไฟล์ทั้งหมด ประเภทไฟล์ จำนวนระเบียน จำนวนคอลัมน์ รูปแบบข้อมูล และปัญหาที่พบ
+2. ตรวจสอบว่ามี CSV, JSON หรือไฟล์ข้อมูลรูปแบบอื่น และตรวจสอบว่ามีข้อมูลซ้ำระหว่างไฟล์หรือไม่
+3. วิเคราะห์โครงสร้างโปรเจกต์เดิมก่อน หากมีไฟล์โค้ดอยู่แล้ว ให้รักษาส่วนที่ทำงานได้และปรับปรุงต่อยอด
+4. จัดทำ Data Mapping ระหว่างฟิลด์ต้นฉบับกับโครงสร้าง Firestore
+5. ออกแบบสถาปัตยกรรมและ Security Rules ก่อนเชื่อมต่อฐานข้อมูล
+6. พัฒนาเว็บไซต์และทดสอบฟังก์ชันหลักทีละส่วน
+7. ตรวจสอบว่าไม่มีข้อมูลจำลองหรือปุ่มที่กดแล้วไม่ทำงาน
+8. สรุปสิ่งที่ทำเสร็จ สิ่งที่ต้องตั้งค่าเพิ่มเติม และวิธีทดสอบระบบ
+
+หากข้อมูลหรือการตั้งค่าบางอย่างยังไม่มี ให้แสดงสถานะที่ชัดเจนและสร้างขั้นตอนสำหรับตั้งค่า ห้ามกล่าวอ้างว่าเชื่อมต่อ Firebase, นำเข้าข้อมูล, สร้าง GitHub Repository หรือ Deploy เว็บไซต์สำเร็จแล้ว หากยังไม่ได้ดำเนินการจริง
+
+อย่าหยุดเพียงการให้คำแนะนำหรือสร้างภาพหน้าจอจำลอง ให้ลงมือสร้างและแก้ไขไฟล์โค้ดจริงเท่าที่สภาพแวดล้อมรองรับ
+
+---
+
+# 2. ชื่อเว็บไซต์และอัตลักษณ์แบรนด์
+
+ชื่อทางการ:
+
+**MUSEUM ATLAS THAILAND**
+
+ชื่อภาษาไทย:
+
+**ภูมิปัญญาไทยในพิพิธภัณฑ์**
+
+แนวคิดของแบรนด์:
+
+เว็บไซต์เป็นแผนที่องค์ความรู้ที่ช่วยให้ผู้ใช้ค้นพบพิพิธภัณฑ์ เรื่องราว หัวเรื่อง และความเชื่อมโยงของมรดกทางวัฒนธรรมไทย ไม่ใช่เว็บไซต์ขายสินค้าและไม่ใช่เพียงสารบัญรายชื่อพิพิธภัณฑ์
+
+ข้อความหลักบนหน้าแรก:
+
+“ทุกพิพิธภัณฑ์มีเรื่องราว ทุกหัวเรื่องมีความเชื่อมโยง”
+
+ข้อความอธิบาย:
+
+“สำรวจพิพิธภัณฑ์ในประเทศไทย ค้นพบภูมิปัญญา ประวัติศาสตร์ และวัฒนธรรมผ่านหัวเรื่องและแผนผังองค์ความรู้ที่เชื่อมโยงเรื่องราวจากอดีตเข้าด้วยกัน”
+
+Tagline:
+
+“เรื่องราวจากอดีต เชื่อมโยงองค์ความรู้ สู่การเรียนรู้ที่ไม่สิ้นสุด”
+
+แนวทางการออกแบบ:
+
+- Thai Heritage Editorial
+- Digital Archive
+- Knowledge Discovery
+- Modern Museum Directory
+- Scholarly but approachable
+- Warm, calm, elegant and trustworthy
+- ใช้พื้นที่ว่างอย่างเหมาะสม อ่านง่าย ไม่รก
+- มีเอกลักษณ์แบบคลังข้อมูลมรดกทางวัฒนธรรมไทย โดยไม่ใช้ลวดลายไทยตกแต่งมากเกินไป
+- รองรับทั้งภาษาไทยและข้อความภาษาอังกฤษที่ปรากฏในข้อมูลต้นฉบับ
+- หลีกเลี่ยงการออกแบบเหมือนร้านค้าออนไลน์หรือ Dashboard สำเร็จรูปที่ไม่มีเอกลักษณ์
+
+## 2.1 ชุดสีหลักของแบรนด์
+
+กำหนด CSS variables ดังนี้ และใช้ให้สอดคล้องกันทั่วทั้งเว็บไซต์
+
+```css
+:root {
+  --color-primary-brown: #9c7d5c;
+  --color-beige: #ece4d4;
+  --color-pale-yellow: #fff9c4;
+  --color-soft-yellow: #fff59d;
+  --color-heritage-gold: #e6c12f;
+  --color-warm-gold: #e8c742;
+
+  --color-text-primary: #463629;
+  --color-text-secondary: #6f5a45;
+  --color-surface: #fffdf7;
+  --color-border: #d7c8b2;
+}
+```
+
+ข้อกำหนดด้านสี:
+
+- ใช้สีน้ำตาลเป็นสีหลักสำหรับ Navigation, หัวข้อสำคัญ และองค์ประกอบที่ต้องการความหนักแน่น
+- ใช้สีเบจเป็นพื้นหลังของพื้นที่รองและการ์ดบางประเภท
+- ใช้สีเหลืองอ่อนสำหรับ Highlight, ป้ายข้อมูล และองค์ประกอบที่ช่วยให้ผู้ใช้ค้นพบข้อมูล
+- ใช้สีทองสำหรับจุดเด่น ตัวเลขสำคัญ และองค์ประกอบที่ต้องการดึงดูดสายตา
+- ใช้สีพื้นผิวสีอ่อนเพื่อรักษาความสบายตา
+- ตรวจสอบ Contrast ของข้อความและปุ่มให้เหมาะสม โดยเฉพาะข้อความบนพื้นหลังสีทองและสีเหลือง
+- ใช้ข้อความสีเข้มบนพื้นหลังสีเหลืองหรือสีทอง และใช้ข้อความสีขาวหรือสีอ่อนบนพื้นหลังสีน้ำตาลเข้มเมื่อ Contrast ผ่านเกณฑ์
+- ห้ามเปลี่ยนค่าสีหลักทั้งหกสีของแบรนด์โดยพลการ
+- สามารถใช้สีสถานะ เช่น สำเร็จ คำเตือน หรือข้อผิดพลาดเพิ่มเติมได้เมื่อจำเป็น แต่ต้องไม่กลบอัตลักษณ์หลัก
+
+สร้าง Design System ที่ประกอบด้วย Typography, Spacing, Border Radius, Shadows, Buttons, Inputs, Cards, Badges, Dialogs, Tables, Pagination, Loading States และ Empty States
+
+---
+
+# 3. เทคโนโลยีและสถาปัตยกรรม
+
+ให้ใช้เทคโนโลยีต่อไปนี้ เว้นแต่โครงสร้างโปรเจกต์เดิมจะมีเหตุผลทางเทคนิคที่ชัดเจนให้ใช้แนวทางอื่น
+
+- Frontend: React + TypeScript
+- Build Tool: Vite หากเหมาะสมกับโปรเจกต์
+- Styling: CSS Modules, CSS Variables หรือ Tailwind CSS โดยเลือกแนวทางหลักเพียงแนวทางเดียวให้สม่ำเสมอ
+- Authentication: Firebase Authentication แบบ Email/Password
+- Database: Cloud Firestore
+- Knowledge Graph Visualization: Cytoscape.js
+- Charts: Chart.js หรือ ECharts
+- Map: Leaflet เฉพาะเมื่อมีพิกัดที่ตรวจสอบได้
+- Hosting: Firebase Hosting หรือแพลตฟอร์มที่เหมาะสม
+- Source Control: Git และ GitHub
+- Data Import: Node.js scripts หรือเครื่องมือฝั่ง Admin ที่เหมาะสม
+- Data Export: CSV และ JSON
+
+ข้อกำหนด:
+
+1. ใช้ Cloud Firestore เป็นฐานข้อมูลหลักเพียงระบบเดียว
+2. ใช้ Firebase Authentication เป็นระบบยืนยันตัวตนของผู้ดูแล
+3. ห้ามใช้ Firebase Storage
+4. ห้ามสร้างระบบสมาชิกสำหรับผู้เข้าชมทั่วไป
+5. ผู้เข้าชมทั่วไปไม่จำเป็นต้อง Login หรือสมัครสมาชิก
+6. ห้ามเพิ่ม Backend Server แยกโดยไม่จำเป็น
+7. การนำเข้าข้อมูลปริมาณมากให้ใช้สคริปต์ฝั่ง Node.js ร่วมกับ Firebase Admin SDK เมื่อเหมาะสม
+8. ห้ามนำ Firebase Admin SDK หรือ Service Account Private Key ไปใช้ใน Frontend
+9. แยก Components, Pages, Services, Types, Hooks, Utilities และ Configuration อย่างเป็นระบบ
+10. หลีกเลี่ยงการเขียนโค้ดทุกอย่างไว้ในไฟล์เดียว
+11. ใช้ TypeScript Types หรือ Interfaces กับข้อมูลสำคัญทุกประเภท
+12. ใช้ Environment Variables กับค่าที่จำเป็น และจัดเตรียม `.env.example`
+13. สร้าง Error Handling และ Logging ที่ไม่เปิดเผยข้อมูลลับ
+14. หากมีระบบหรือไลบรารีที่ต้องติดตั้งเพิ่ม ให้ระบุ Dependency และคำสั่งติดตั้งอย่างชัดเจน
+
+---
+
+# 4. การตรวจสอบและจัดการชุดข้อมูลพิพิธภัณฑ์
+
+แหล่งข้อมูลต้นทาง:
+
+https://thaigovdata.com/datasets/museum
+
+ไฟล์ ZIP ที่แนบมาเป็นแหล่งข้อมูลหลักสำหรับการนำเข้าระบบ โปรดตรวจสอบไฟล์จริงก่อนยืนยันจำนวนข้อมูลหรือชื่อฟิลด์
+
+ข้อมูลที่เคยคาดหมายจากการวิเคราะห์เบื้องต้นมีประมาณ 1,574 ระเบียน และ 11 ฟิลด์ ได้แก่
+
+- `type`
+- `title`
+- `creator`
+- `provenance`
+- `subject`
+- `spatial`
+- `temporal`
+- `language`
+- `rights`
+- `license`
+- `source.uri`
+
+รายการข้างต้นเป็นเพียงโครงสร้างที่ต้องตรวจสอบกับไฟล์จริง ห้ามใช้จำนวน 1,574 เป็นค่าคงที่หากข้อมูลจริงไม่ตรงกัน
+
+## 4.1 หลักการจัดการข้อมูล
+
+- เก็บค่าต้นฉบับของทุกฟิลด์ไว้ให้ครบ
+- ไม่ลบข้อมูลที่ไม่รู้จักหรือข้อมูลที่ยังไม่สามารถแปลงได้
+- รักษาข้อความภาษาไทย อักขระพิเศษ และ Unicode
+- ตรวจสอบข้อมูลว่าง ค่าว่าง รูปแบบไม่ถูกต้อง และระเบียนซ้ำ
+- ตรวจสอบว่า CSV และ JSON เป็นข้อมูลชุดเดียวกันหรือเป็นคนละชุด
+- สร้าง Data Mapping ที่อธิบายวิธีแปลงข้อมูลแต่ละฟิลด์
+- บันทึกที่มาและเวลาในการนำเข้าข้อมูล
+- เก็บ Source URI ต้นฉบับไว้เสมอ
+- ห้ามสร้าง URL แหล่งอ้างอิงขึ้นเอง
+- ห้ามสร้างชื่อพิพิธภัณฑ์หรือรายละเอียดประวัติศาสตร์ที่ไม่มีหลักฐาน
+- หากพบข้อมูลไม่สมบูรณ์ ให้แสดงว่าไม่มีข้อมูล แทนการเติมข้อมูลโดยการคาดเดา
+
+## 4.2 การจัดการ Subject
+
+ฟิลด์ `subject` เป็นส่วนสำคัญที่สุดส่วนหนึ่งของเว็บไซต์
+
+ต้องตรวจสอบก่อนว่าข้อมูล Subject ใช้ตัวคั่นอะไร อาจเป็นเครื่องหมายจุลภาคหรือรูปแบบอื่น และต้องไม่แยกข้อความผิดพลาดในกรณีที่ตัวคั่นเป็นส่วนหนึ่งของชื่อหัวเรื่อง
+
+ข้อกำหนด:
+
+- เก็บ `subjectRaw` เพื่อรักษาข้อความต้นฉบับ
+- สร้างรายการหัวเรื่องที่ผ่านการแยกและทำความสะอาดแล้ว
+- ตัดช่องว่างที่ไม่จำเป็นและจัดการค่าซ้ำภายในระเบียนเดียวกัน
+- รักษารูปแบบตัวพิมพ์และภาษาต้นฉบับอย่างเหมาะสม
+- สร้าง Stable Subject ID เพื่อให้เชื่อมโยงข้อมูลได้
+- ห้ามรวมคำพ้องหรือคำที่มีความหมายคล้ายกันโดยอัตโนมัติ หากยังไม่มีหลักฐานยืนยัน
+- หากพบหัวเรื่องที่อาจเป็นคำเดียวกัน ให้เก็บเป็นข้อเสนอสำหรับการตรวจสอบของ Admin
+- ให้ Admin สามารถเพิ่ม แก้ไข รวม หรือยกเลิกการรวม Subject ได้
+- เมื่อเปลี่ยนชื่อหรือรวม Subject ต้องอัปเดตความสัมพันธ์ที่เกี่ยวข้องอย่างปลอดภัย
+
+## 4.3 การตรวจสอบคุณภาพข้อมูล
+
+สร้างระบบตรวจสอบข้อมูลอย่างน้อยดังนี้
+
+- Total Records
+- Valid Records
+- Duplicate Candidates
+- Missing Titles
+- Missing Subjects
+- Missing Source URLs
+- Invalid URLs
+- Empty Fields
+- Import Errors
+- Unresolved Subject Values
+
+ข้อมูลสถิติทั้งหมดต้องคำนวณจากข้อมูลจริง ไม่ใช้ตัวเลขตัวอย่างเป็นข้อมูลจริงบนเว็บไซต์
+
+---
+
+# 5. โครงสร้างฐานข้อมูล Cloud Firestore
+
+ออกแบบ Schema ที่ยืดหยุ่น ตรวจสอบได้ และรองรับการพัฒนาในอนาคต
+
+## 5.1 Collection: `museums`
+
+เก็บระเบียนพิพิธภัณฑ์ โดยรักษาข้อมูลต้นฉบับ
+
+ฟิลด์ที่แนะนำ:
+
+```ts
+interface Museum {
+  id: string;
+  sourceId?: string;
+
+  type?: string;
+  title: string;
+  creator?: string;
+  provenance?: string;
+  subjectRaw?: string;
+  spatial?: string;
+  temporal?: string;
+  language?: string;
+  rights?: string;
+  license?: string;
+  sourceUri?: string;
+
+  subjectIds: string[];
+
+  imageUrl?: string;
+  imageAlt?: string;
+  imageRights?: string;
+
+  status: "draft" | "published" | "archived";
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+  importedAt?: Timestamp;
+  createdBy?: string;
+  updatedBy?: string;
+}
+```
+
+ปรับฟิลด์เพิ่มเติมได้ตามข้อมูลจริง แต่ต้องรักษาฟิลด์ต้นฉบับให้ครบและไม่เปลี่ยนความหมายของข้อมูล
+
+ใช้ Stable Document ID เพื่อป้องกันข้อมูลซ้ำเมื่อ Import ซ้ำ หลีกเลี่ยงการใช้ Auto ID สำหรับระเบียนที่ต้องตรวจจับซ้ำระหว่างการนำเข้า
+
+## 5.2 Collection: `subjects`
+
+เก็บข้อมูลหัวเรื่อง
+
+```ts
+interface Subject {
+  id: string;
+  name: string;
+  normalizedKey: string;
+  aliases?: string[];
+  description?: string;
+  status: "active" | "merged" | "archived";
+  mergedIntoId?: string;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+}
+```
+
+`normalizedKey` ใช้สำหรับตรวจจับรายการซ้ำเบื้องต้นเท่านั้น ห้ามถือว่าคำที่มีรูปแบบคล้ายกันมีความหมายเดียวกันโดยอัตโนมัติ
+
+## 5.3 Collection: `museumSubjects`
+
+ใช้เก็บความสัมพันธ์ระหว่างพิพิธภัณฑ์กับหัวเรื่อง หากต้องการ Query ความสัมพันธ์ในปริมาณมากอย่างมีประสิทธิภาพ
+
+ตัวอย่างฟิลด์:
+
+- `museumId`
+- `subjectId`
+- `sourceField`
+- `createdAt`
+
+สามารถใช้ Array ของ `subjectIds` ใน `museums` ร่วมกับ Collection นี้ได้ แต่ต้องกำหนดให้ชัดเจนว่าแนวทางใดเป็นแหล่งข้อมูลหลักของความสัมพันธ์ และต้องมีวิธีตรวจสอบความสอดคล้องของข้อมูล
+
+## 5.4 Collection: `siteSettings`
+
+เก็บค่าตั้งค่าที่ Admin สามารถแก้ไขได้ เช่น
+
+- Site Title
+- Tagline
+- Homepage Hero
+- Homepage Sections
+- Navigation Labels
+- Footer Content
+- About Page Content
+- Contact Information
+- Theme Settings
+- Featured Museum IDs
+- Featured Subject IDs
+- SEO Metadata
+- Announcement Banner
+- Public Visibility Settings
+
+ค่าตั้งค่าต้องอ่านจาก Firestore จริงเมื่อเชื่อมต่อแล้ว ไม่ใช่เปลี่ยนเฉพาะ State ในหน้าเว็บ
+
+## 5.5 Collection: `graphSettings`
+
+เก็บการตั้งค่า Knowledge Graph เช่น
+
+- เปิดหรือปิดการแสดง Node Type บางประเภท
+- สีและขนาด Node
+- เปิดหรือปิด Relationship Type
+- ค่าเริ่มต้นของ Layout
+- จำนวน Node สูงสุดต่อการแสดงผล
+- ค่าเริ่มต้นของ Filters
+- Graph Display Preferences
+
+ห้ามให้การตั้งค่าด้านการแสดงผลเปลี่ยนแปลงข้อมูลต้นฉบับโดยไม่ตั้งใจ
+
+## 5.6 Collection: `articles`
+
+เก็บบทความหรือเนื้อหาเชิงบรรณาธิการที่ Admin สร้างเอง
+
+ฟิลด์ที่แนะนำ:
+
+- `title`
+- `slug`
+- `summary`
+- `content`
+- `imageUrl`
+- `imageAlt`
+- `imageRights`
+- `relatedMuseumIds`
+- `relatedSubjectIds`
+- `status`
+- `createdAt`
+- `updatedAt`
+- `publishedAt`
+
+แยกเนื้อหาบทความที่ผู้ดูแลเขียนเองออกจากข้อมูลต้นฉบับของชุดข้อมูล
+
+## 5.7 Collection สำหรับการดูแลและตรวจสอบ
+
+สร้าง Collection ตามความจำเป็น:
+
+- `museumVersions`: เก็บประวัติการแก้ไขข้อมูลพิพิธภัณฑ์
+- `trash`: เก็บข้อมูลที่ถูก Soft Delete เพื่อกู้คืน
+- `auditLogs`: บันทึกกิจกรรมสำคัญของ Admin
+- `importJobs`: บันทึกสถานะการนำเข้าและข้อผิดพลาด
+- `importReports`: เก็บรายงานตรวจสอบข้อมูล
+- `adminSettings`: ใช้เก็บค่าการทำงานของระบบผู้ดูแลที่ไม่ใช่ความลับ
+
+กำหนด Schema, Indexes, Retention Policy และสิทธิ์การเข้าถึงให้เหมาะสม ห้ามเก็บรหัสผ่านหรือข้อมูลรับรองที่เป็นความลับไว้ในเอกสารเหล่านี้
+
+---
+
+# 6. ระบบ Admin: ผู้ดูแลเพียงหนึ่งบัญชี
+
+เว็บไซต์นี้ไม่มีระบบสมัครสมาชิกสำหรับประชาชน และต้องมีบัญชี Admin ที่ได้รับอนุญาตเพียงหนึ่งบัญชีเท่านั้น
+
+อีเมลบัญชีผู้ดูแลที่กำหนดไว้สำหรับการตั้งค่า:
+
+`admin@gmail.com`
+
+มีการระบุรหัสผ่านเริ่มต้นสำหรับการพัฒนาว่า `admin123456` แต่ให้ถือว่าเป็นรหัสผ่านชั่วคราวที่ไม่ปลอดภัยสำหรับใช้งานจริง ต้องเปลี่ยนก่อนเปิดเว็บไซต์สู่สาธารณะ และห้ามเขียนรหัสผ่านลงใน Source Code, GitHub, Firestore หรือไฟล์ Configuration ที่เผยแพร่ได้
+
+## 6.1 การยืนยันตัวตน
+
+- ใช้ Firebase Authentication แบบ Email/Password
+- ไม่มีปุ่มสมัครสมาชิกสาธารณะ
+- ไม่เปิด Google Sign-In สำหรับผู้เข้าชมทั่วไป
+- มีหน้า Admin Login แยกจากเว็บไซต์หลัก
+- มีปุ่ม Admin Access ขนาดเล็กใน Footer หรือ Secondary Navigation
+- หลัง Login สำเร็จ ให้ตรวจสอบสิทธิ์ Admin จาก UID ที่ได้รับอนุญาตหรือ Custom Claims
+- การตรวจสอบสิทธิ์ต้องเกิดขึ้นที่ Firestore Security Rules ด้วย ไม่ใช่ตรวจเฉพาะ Frontend
+- ห้ามเชื่อค่า `isAdmin` จาก Local Storage, URL Parameters หรือข้อมูลที่ผู้ใช้แก้ไขเองได้
+- ผู้ใช้ที่ Login ได้แต่ไม่ได้รับสิทธิ์ Admin ต้องไม่สามารถเขียนข้อมูลได้
+- หากพบ Admin UID ที่ไม่ได้รับอนุญาต ให้ปฏิเสธการเข้าถึง
+
+หากต้องสร้าง Custom Claims ให้จัดเตรียมสคริปต์ฝั่ง Server/Admin SDK ที่ปลอดภัยและมีคำอธิบายวิธีเรียกใช้ ห้ามฝัง Service Account Key ใน Frontend
+
+## 6.2 หน้าจอ Admin Dashboard
+
+แสดงข้อมูลจริง เช่น
+
+- จำนวนพิพิธภัณฑ์ทั้งหมด
+- จำนวนพิพิธภัณฑ์ที่เผยแพร่แล้ว
+- จำนวน Draft
+- จำนวน Subject
+- จำนวนบทความ
+- จำนวนข้อมูลที่รอตรวจสอบ
+- สถานะ Import ล่าสุด
+- กิจกรรม Admin ล่าสุด
+- รายการข้อมูลที่แก้ไขล่าสุด
+
+ข้อมูลทั้งหมดต้องดึงจาก Firestore หรือข้อมูลที่คำนวณจากฐานข้อมูลจริง
+
+## 6.3 เมนู Admin
+
+สร้างเมนูต่อไปนี้:
+
+1. Dashboard
+2. Manage Museums
+3. Manage Subjects
+4. Manage Articles
+5. Manage Images
+6. Import Data
+7. Export Data
+8. Knowledge Graph Settings
+9. Homepage & Site Settings
+10. Data Quality
+11. Version History
+12. Trash & Restore
+13. Audit Logs
+14. Account & Security
+15. Logout
+
+## 6.4 Manage Museums
+
+Admin สามารถ:
+
+- ดูรายการทั้งหมด
+- ค้นหาและกรองข้อมูล
+- เพิ่มข้อมูลใหม่
+- แก้ไขข้อมูล
+- ดูรายละเอียดต้นฉบับ
+- เปลี่ยนสถานะ Draft/Published/Archived
+- เพิ่มหรือแก้ไข Subject Relationships
+- เพิ่มหรือแก้ไข Image URL
+- ตรวจสอบ Source URI
+- ดู Version History
+- Soft Delete
+- Restore
+- Export ข้อมูล
+
+เมื่อบันทึกต้องเขียนลง Firestore จริง พร้อมบันทึก `updatedAt` และผู้แก้ไข
+
+ก่อนลบหรือดำเนินการที่มีผลกระทบสูง ให้แสดง Confirmation Dialog
+
+## 6.5 Manage Subjects
+
+Admin สามารถ:
+
+- ดู Subject ทั้งหมด
+- ค้นหา Subject
+- ดูจำนวนพิพิธภัณฑ์ที่เชื่อมโยง
+- แก้ไขชื่อ
+- เพิ่ม Alias
+- เพิ่มคำอธิบาย
+- รวม Subject ที่ตรวจสอบแล้วว่าเป็นหัวเรื่องเดียวกัน
+- กู้คืนหรือยกเลิกการรวมเมื่อระบบรองรับ
+- ดูรายการพิพิธภัณฑ์ที่ได้รับผลกระทบ
+- ตรวจสอบ Subject ที่ยังไม่ถูกจัดหมวดหมู่
+
+ทุกการรวม Subject ต้องมีขั้นตอนยืนยันและบันทึกประวัติ
+
+## 6.6 Homepage & Site Settings
+
+Admin ต้องสามารถแก้ไของค์ประกอบหน้าแรกได้โดยไม่จำเป็นต้องแก้ Source Code เช่น
+
+- Hero Title
+- Hero Description
+- Tagline
+- ปุ่ม Call to Action
+- Featured Museums
+- Featured Subjects
+- Announcement Banner
+- About Section
+- Footer Content
+- ลำดับ Sections
+- การแสดงหรือซ่อน Section
+
+เมื่อกดบันทึก การเปลี่ยนแปลงต้องถูกเก็บใน Firestore และหน้า Public ต้องอ่านค่าใหม่ตามกลไกที่เหมาะสม
+
+## 6.7 Audit Logs และ Version History
+
+บันทึกกิจกรรมสำคัญ เช่น
+
+- สร้างระเบียน
+- แก้ไขระเบียน
+- เปลี่ยนสถานะ
+- ลบและกู้คืน
+- Import
+- Export
+- แก้ไข Subject
+- แก้ไข Site Settings
+- เปลี่ยน Graph Settings
+
+เก็บเวลาที่ทำรายการ ประเภทกิจกรรม Document ID และข้อมูลสรุปการเปลี่ยนแปลงที่จำเป็น
+
+ห้ามบันทึกรหัสผ่าน Token หรือ Secret ลงใน Log
+
+## 6.8 Soft Delete และ Trash
+
+การลบข้อมูลปกติควรเป็น Soft Delete หรือย้ายไปยัง Trash เพื่อให้กู้คืนได้
+
+- เก็บข้อมูลเดิมที่จำเป็น
+- บันทึกผู้ลบและเวลาที่ลบ
+- ไม่แสดงข้อมูลที่ถูกลบในหน้า Public
+- มีปุ่ม Restore
+- มี Confirmation ก่อนลบถาวร
+- ตรวจสอบความสัมพันธ์ที่เกี่ยวข้องก่อนลบ
+- ป้องกันการลบระเบียนที่ไม่ได้ตั้งใจ
+- บันทึก Audit Log ทุกครั้ง
+
+---
+
+# 7. การจัดการรูปภาพด้วย External URLs เท่านั้น
+
+ห้ามใช้ Firebase Storage
+
+รูปภาพทั้งหมดต้องแสดงผ่าน URL ภายนอก และเก็บ URL เป็น String ใน Firestore
+
+ฟิลด์ที่แนะนำ:
+
+- `imageUrl`
+- `imageAlt`
+- `imageRights`
+
+สำหรับภาพประกอบเพิ่มเติม อาจใช้ Array ของ Object ที่มี `url`, `alt`, `rights` และ `caption` หากจำเป็น
+
+ข้อกำหนด:
+
+1. ห้ามอัปโหลดไฟล์รูปภาพเข้าสู่ Firebase Storage
+2. ห้ามเก็บภาพแบบ Base64 หรือ Binary ใน Firestore
+3. ห้ามสร้าง URL รูปภาพปลอม
+4. ห้ามใช้ URL ตัวอย่างที่ไม่มีอยู่จริงเป็นข้อมูลเผยแพร่
+5. ห้ามดึงภาพจากแหล่งที่ไม่มีสิทธิ์ใช้งานโดยไม่ตรวจสอบ
+6. ให้ Admin วาง URL ของภาพที่ได้รับอนุญาตให้ใช้งาน
+7. ตรวจสอบรูปแบบ URL ก่อนบันทึก โดยอนุญาตเฉพาะ HTTPS ตามนโยบายที่กำหนด
+8. แสดง Preview ก่อนบันทึก
+9. ตรวจจับ URL ว่างหรือผิดรูปแบบ
+10. หากภาพโหลดไม่สำเร็จ ให้แสดง Placeholder ที่ออกแบบให้เข้ากับแบรนด์
+11. ต้องมี Alt Text สำหรับการเข้าถึง
+12. หากทราบสิทธิ์หรือแหล่งที่มาของภาพ ให้บันทึกไว้
+13. ห้ามใช้ชื่อพิพิธภัณฑ์เป็นเหตุผลในการสร้าง URL ภาพอัตโนมัติ
+
+สร้างหน้า Manage Images สำหรับตรวจสอบภาพที่ไม่มี URL ภาพที่โหลดไม่สำเร็จ และภาพที่ยังขาด Alt Text
+
+---
+
+# 8. โครงสร้างเว็บไซต์ Public
+
+ผู้เข้าชมไม่ต้องสมัครสมาชิกหรือ Login
+
+Navigation หลักควรประกอบด้วย:
+
+- หน้าแรก
+- พิพิธภัณฑ์
+- สำรวจหัวเรื่อง
+- Knowledge Graph
+- ภาพรวมข้อมูล
+- เกี่ยวกับโครงการ
+
+สามารถเพิ่ม Search เป็นองค์ประกอบสำคัญใน Navigation ได้
+
+## 8.1 Home Page
+
+ออกแบบหน้าแรกให้สวยงามและมีเอกลักษณ์
+
+องค์ประกอบ:
+
+1. Header และ Navigation
+2. Hero Section พร้อมชื่อเว็บไซต์
+3. Search Bar ที่ค้นหาได้จริง
+4. สถิติข้อมูลจาก Firestore
+5. Featured Museums
+6. Featured Subjects
+7. Knowledge Graph Preview
+8. ส่วนสำรวจตามประเภทหรือพื้นที่ เมื่อข้อมูลรองรับ
+9. บทความหรือเรื่องราวที่ Admin เลือก
+10. About the Project
+11. Data Source & Methodology
+12. Footer พร้อมลิงก์แหล่งข้อมูลและ Admin Access
+
+ตัวอย่างข้อความ Hero:
+
+“ทุกพิพิธภัณฑ์มีเรื่องราว ทุกหัวเรื่องมีความเชื่อมโยง”
+
+คำอธิบาย:
+
+“สำรวจพิพิธภัณฑ์ในประเทศไทย ค้นพบภูมิปัญญา ประวัติศาสตร์ และวัฒนธรรมผ่านหัวเรื่องและแผนผังองค์ความรู้ที่เชื่อมโยงเรื่องราวจากอดีตเข้าด้วยกัน”
+
+ตัวเลขทั้งหมดต้องคำนวณจากข้อมูลจริง ห้ามแสดงจำนวนพิพิธภัณฑ์หรือหัวเรื่องแบบ Hardcode
+
+หากฐานข้อมูลยังไม่มีข้อมูล ให้แสดง Empty State ที่สวยงามและแจ้งสถานะอย่างตรงไปตรงมา
+
+## 8.2 Museum Directory
+
+สร้างหน้ารวมพิพิธภัณฑ์ที่ค้นหาและกรองได้
+
+ความสามารถ:
+
+- Search by title
+- Filter by type
+- Filter by subject
+- Filter by creator
+- Filter by spatial/location text
+- Filter by temporal เมื่อมีข้อมูล
+- Sort ตามชื่อหรือข้อมูลที่รองรับ
+- Pagination
+- จำนวนผลลัพธ์จริง
+- Clear Filters
+- Loading State
+- Empty State
+- Error State
+
+ห้ามสมมติว่าทุกระเบียนมีพิกัด GPS หากมีเพียงข้อความชื่อจังหวัดหรือสถานที่ ให้ใช้เป็นข้อความกรองหรือค้นหาแทน
+
+## 8.3 Museum Detail
+
+หน้าแสดงรายละเอียดพิพิธภัณฑ์ควรประกอบด้วย:
+
+- ชื่อพิพิธภัณฑ์
+- ภาพ หากมี URL ที่ใช้งานได้
+- ประเภท
+- Creator
+- Provenance
+- Subject
+- Spatial
+- Temporal
+- Language
+- Rights
+- License
+- Source URI
+- Related Subjects
+- Related Museums
+- วันที่อัปเดตข้อมูล หากมี
+- ลิงก์กลับไปยังแหล่งข้อมูลต้นฉบับ
+
+แสดงเฉพาะข้อมูลที่มีจริง หากไม่มีข้อมูลให้แสดง “ไม่มีข้อมูลในชุดข้อมูลต้นทาง” หรือข้อความที่เหมาะสม
+
+ห้ามสร้างคำอธิบายทางประวัติศาสตร์โดยการคาดเดา
+
+Related Museums ต้องคำนวณจากความสัมพันธ์ที่มีหลักฐานในฐานข้อมูล เช่น มี Subject ร่วมกัน และควรอธิบายเหตุผลของความเชื่อมโยง
+
+## 8.4 Subject Explorer
+
+สร้างหน้าสำรวจหัวเรื่องเพื่อให้ผู้ใช้ค้นพบองค์ความรู้ผ่าน Subject
+
+ความสามารถ:
+
+- Search Subject
+- Browse Subjects
+- Sort by Name
+- Sort by Number of Related Museums
+- แสดงจำนวนพิพิธภัณฑ์ที่เชื่อมโยง
+- แสดงพิพิธภัณฑ์ที่เกี่ยวข้อง
+- แสดงหัวเรื่องที่เชื่อมโยงผ่านพิพิธภัณฑ์เดียวกัน
+- เปิดดูความสัมพันธ์ใน Knowledge Graph
+- รองรับภาษาไทย
+- แสดงข้อมูลที่ไม่มีความสัมพันธ์อย่างชัดเจน
+
+ห้ามรวมคำพ้องอัตโนมัติโดยไม่มีหลักฐาน
+
+## 8.5 Insights & Data Overview
+
+สร้างหน้าภาพรวมข้อมูลด้วยกราฟและสถิติจาก Firestore
+
+ตัวอย่าง:
+
+- จำนวนระเบียนตามประเภทพิพิธภัณฑ์
+- จำนวนระเบียนตามพื้นที่ที่ระบุในข้อมูล
+- จำนวนระเบียนที่มีหรือไม่มี Subject
+- จำนวน Subject ที่พบบ่อย
+- ความครบถ้วนของฟิลด์สำคัญ
+- จำนวนระเบียนที่มี Source URI
+- จำนวนระเบียนที่มีภาพ
+- แนวโน้มตามช่วงเวลาหากข้อมูลรองรับจริง
+
+ข้อกำหนด:
+
+- ทุกกราฟต้องคำนวณจากข้อมูลจริง
+- ไม่สร้างข้อมูลสุ่ม
+- ไม่ใช้ข้อมูลตัวอย่างเป็นสถิติจริง
+- แสดงคำอธิบายวิธีคำนวณ
+- ระบุข้อจำกัดของข้อมูลเมื่อจำเป็น
+- ป้องกันการโหลดข้อมูลจำนวนมากโดยไม่จำเป็น
+- ใช้ Pagination, Aggregation หรือการคำนวณล่วงหน้าตามความเหมาะสม
+
+## 8.6 About & Sources
+
+อธิบาย:
+
+- วัตถุประสงค์ของโครงการ
+- แหล่งที่มาของข้อมูล
+- วิธีนำเข้าข้อมูล
+- วิธีทำความสะอาดข้อมูล
+- วิธีจัดการ Subject
+- ความหมายของ Knowledge Graph
+- วิธีสร้างความสัมพันธ์
+- ข้อจำกัดของข้อมูล
+- สิทธิ์การใช้งานและ License ตามข้อมูลต้นทาง
+- ช่องทางอ้างอิงกลับไปยัง Dataset ต้นฉบับ
+
+ห้ามกล่าวอ้างว่าข้อมูลทั้งหมดได้รับการตรวจสอบความถูกต้องแล้ว หากยังไม่ได้ตรวจสอบ
+
+---
+
+# 9. Knowledge Graph: แผนผังองค์ความรู้
+
+สร้างระบบ Knowledge Graph โดยใช้ Cytoscape.js และ Cloud Firestore เป็นแหล่งข้อมูล
+
+แนวคิดคือให้ผู้ใช้สำรวจความสัมพันธ์ระหว่างพิพิธภัณฑ์ หัวเรื่อง สถานที่ ประเภท และข้อมูลอื่นที่มีหลักฐานรองรับ
+
+ระบบนี้เป็น Knowledge Graph ที่แสดงผลผ่านเว็บไซต์ ไม่ใช่การเชื่อมต่อ Neo4j โดยอัตโนมัติ และห้ามอ้างว่ามี Neo4j Backend หากยังไม่ได้ติดตั้งหรือเชื่อมต่อจริง
+
+## 9.1 ประเภท Node
+
+เริ่มต้นด้วย Node Types ต่อไปนี้:
+
+1. Museum
+2. Subject
+3. MuseumType
+4. PersonOrOrganization
+5. Place
+6. TimePeriod
+
+ใช้ Node Type เฉพาะเมื่อข้อมูลรองรับ
+
+ตัวอย่าง:
+
+- Museum สร้างจากระเบียนพิพิธภัณฑ์
+- Subject สร้างจากหัวเรื่องที่ผ่านการตรวจสอบ
+- MuseumType สร้างจากประเภทที่มีอยู่จริง
+- PersonOrOrganization สร้างจาก Creator เมื่อข้อมูลรองรับการแยก Entity
+- Place สร้างจาก Spatial เมื่อสามารถระบุ Entity ได้อย่างน่าเชื่อถือ
+- TimePeriod สร้างจาก Temporal เมื่อสามารถระบุช่วงเวลาได้อย่างถูกต้อง
+
+ห้ามสร้าง Place, Person หรือ TimePeriod ปลอมจากข้อความที่ไม่สามารถระบุความหมายได้แน่นอน
+
+## 9.2 ประเภท Relationship
+
+ตัวอย่างความสัมพันธ์:
+
+- `HAS_SUBJECT`
+- `HAS_TYPE`
+- `LOCATED_AT`
+- `CREATED_BY`
+- `ASSOCIATED_WITH_PERIOD`
+
+ใช้ความสัมพันธ์เท่าที่มีข้อมูลรองรับเท่านั้น
+
+หลักการ:
+
+- `HAS_SUBJECT` ต้องมาจาก Subject ของระเบียน
+- `HAS_TYPE` ต้องมาจากประเภทที่ระบุจริง
+- `LOCATED_AT` ใช้เมื่อ Spatial สามารถแปลงเป็น Place Entity ที่มีหลักฐานได้
+- `CREATED_BY` ใช้เมื่อ Creator มีความหมายตามข้อมูลต้นทาง ไม่ใช่การอนุมานว่าผู้สร้างข้อมูลเป็นผู้สร้างพิพิธภัณฑ์
+- `ASSOCIATED_WITH_PERIOD` ใช้เมื่อ Temporal ระบุช่วงเวลาที่เชื่อมโยงได้อย่างมีเหตุผล
+
+ห้ามสร้างความสัมพันธ์ทางประวัติศาสตร์ ความเป็นเจ้าของ ความเป็นบุคคลเดียวกัน หรือเหตุและผลจากการคาดเดา
+
+ทุก Relationship ควรเก็บข้อมูลที่มาหรือหลักฐาน เช่น Source Field, Source Museum ID และข้อมูลอ้างอิงที่เกี่ยวข้อง
+
+## 9.3 Graph User Interface
+
+ต้องมี:
+
+- Zoom In / Zoom Out
+- Pan
+- Drag Nodes
+- Reset View
+- Search Nodes
+- Filter by Node Type
+- Filter by Relationship Type
+- Highlight Selected Node
+- Expand Neighbors
+- Collapse or Hide Neighbors
+- Node Details Panel
+- Relationship Details
+- Legend
+- Loading State
+- Empty State
+- Error State
+- Fullscreen Mode หากเหมาะสม
+- Responsive Layout
+- Keyboard Accessibility
+- การเลือก Node ด้วย Keyboard เมื่อไลบรารีและการออกแบบรองรับ
+
+เมื่อคลิก Museum Node ให้เปิดหน้ารายละเอียดพิพิธภัณฑ์
+
+เมื่อคลิก Subject Node ให้เปิด Subject Explorer หรือแสดงรายละเอียดหัวเรื่อง
+
+เมื่อคลิก Relationship ให้แสดงเหตุผลและข้อมูลต้นทางที่สนับสนุนความสัมพันธ์นั้น
+
+## 9.4 การออกแบบกราฟ
+
+ใช้สีที่เข้ากับแบรนด์:
+
+- Museum: น้ำตาล `#9c7d5c`
+- Subject: ทอง `#e6c12f`
+- MuseumType: เบจ `#ece4d4`
+- PersonOrOrganization: ทองอุ่น `#e8c742`
+- Place: เหลืองอ่อน `#fff59d`
+- TimePeriod: เหลืองซีด `#fff9c4`
+
+ปรับเส้นขอบและข้อความให้ Contrast เหมาะสม
+
+ใช้รูปทรงหรือสัญลักษณ์ช่วยแยก Node Types ไม่ใช้สีเพียงอย่างเดียว
+
+## 9.5 ประสิทธิภาพของ Graph
+
+- ห้ามโหลด Node และ Edge ทุกตัวโดยไม่มีขีดจำกัด หากข้อมูลมีขนาดใหญ่
+- เริ่มต้นจากชุด Node ที่เหมาะสม
+- โหลด Neighbor Nodes เมื่อผู้ใช้ขยายความสัมพันธ์
+- มี Search และ Filter ก่อนแสดงผลจำนวนมาก
+- จำกัดจำนวน Node ต่อการแสดงผล
+- ใช้ Pagination หรือ Query เฉพาะส่วน
+- แสดง Loading Indicator
+- ป้องกันการสร้าง Node ซ้ำ
+- ป้องกัน Edge ซ้ำ
+- แสดงข้อความเมื่อไม่พบความสัมพันธ์
+- รองรับการแสดงผลบนมือถือ
+- ห้ามให้ Graph ค้างเมื่อมีข้อมูลจำนวนมาก
+
+## 9.6 Export และการย้ายไป Neo4j ในอนาคต
+
+สร้างความสามารถ Export:
+
+- Nodes CSV
+- Relationships CSV
+- JSON Graph
+- ข้อมูลอ้างอิงต้นทาง
+- Schema Description
+
+กำหนด Stable IDs และความสัมพันธ์ให้สามารถนำไปแปลงเป็นโครงสร้าง Neo4j ได้ในอนาคต
+
+ห้ามอ้างว่าระบบเชื่อมต่อ Neo4j แล้ว จนกว่าจะมีการตั้งค่าและทดสอบจริง
+
+---
+
+# 10. ระบบนำเข้าข้อมูล CSV / JSON
+
+สร้างระบบ Import ที่ปลอดภัยและตรวจสอบข้อมูลก่อนเขียนลง Firestore
+
+## 10.1 Import Workflow
+
+1. เลือกไฟล์
+2. ตรวจสอบนามสกุลและรูปแบบ
+3. อ่านไฟล์
+4. วิเคราะห์ Header และ Schema
+5. แสดงจำนวนระเบียน
+6. แสดงตัวอย่างข้อมูล
+7. ตรวจสอบ Required Fields
+8. ตรวจสอบข้อมูลซ้ำ
+9. ตรวจสอบ Subject
+10. ตรวจสอบ URL
+11. แสดงข้อผิดพลาดและคำเตือน
+12. ให้ Admin ยืนยันก่อน Import
+13. เริ่มนำเข้าข้อมูล
+14. แสดง Progress
+15. แสดงผลสำเร็จและข้อผิดพลาด
+16. สร้าง Import Report
+17. ตรวจสอบความครบถ้วนหลัง Import
+
+## 10.2 หลักการ Import
+
+- ห้ามลบข้อมูลเดิมโดยอัตโนมัติ
+- ห้ามเขียนทับระเบียนที่แก้ไขโดย Admin โดยไม่แจ้งเตือน
+- ตรวจสอบ Stable IDs หรือ Source IDs ก่อนสร้างระเบียนใหม่
+- หากพบข้อมูลซ้ำ ให้แสดงตัวเลือก Skip, Update หรือ Review
+- หาก Update ข้อมูลที่มีอยู่ ให้เก็บ Version History
+- ใช้ Firestore Batch Writes อย่างเหมาะสม
+- ปฏิบัติตามข้อจำกัดจำนวน Operations ต่อ Batch
+- จัดการ Retry และข้อผิดพลาด
+- รองรับการหยุดหรือเริ่มกระบวนการต่อเมื่อทำได้อย่างปลอดภัย
+- ไม่ใช้ Auto ID แบบสุ่มในการนำเข้าโดยไม่จำเป็น
+- แยกข้อมูลต้นฉบับออกจากข้อมูลที่ Admin เพิ่มเติม
+- บันทึก Import Job ID และเวลา
+
+หากชุดข้อมูลมีขนาดใหญ่เกินกว่าที่ Browser จะจัดการได้อย่างเหมาะสม ให้สร้าง Node.js Import Script ที่ใช้ Firebase Admin SDK แทน
+
+สคริปต์ฝั่ง Admin ต้องใช้ Credentials จากสภาพแวดล้อมที่ปลอดภัยเท่านั้น และห้าม Commit Credentials ลง GitHub
+
+## 10.3 Export Workflow
+
+รองรับการ Export:
+
+- Museums CSV
+- Museums JSON
+- Subjects CSV
+- Subjects JSON
+- Graph Nodes CSV
+- Graph Relationships CSV
+- Graph JSON
+- Import Report
+- Data Quality Report
+
+การ Export ต้องรักษาข้อมูลภาษาไทยและ Unicode ให้ถูกต้อง โดย CSV ควรจัดการ UTF-8 และ BOM เมื่อจำเป็นต่อความเข้ากันได้กับโปรแกรม Spreadsheet
+
+จำกัดการ Export ข้อมูลตามสิทธิ์ของผู้ใช้ และไม่รวมข้อมูลลับของระบบ
+
+---
+
+# 11. ระบบค้นหาและประสิทธิภาพ
+
+การค้นหาต้องทำงานจริงกับข้อมูลใน Firestore
+
+ข้อกำหนด:
+
+- ค้นหาชื่อพิพิธภัณฑ์
+- ค้นหา Subject
+- ค้นหาข้อความที่รองรับ
+- กรองตาม Type
+- กรองตาม Spatial
+- กรองตาม Temporal เมื่อมีข้อมูล
+- กรองตาม Published Status สำหรับ Admin
+- แสดงจำนวนผลลัพธ์
+- รองรับ Pagination
+- มี Debounce สำหรับ Search Input เมื่อเหมาะสม
+- แสดงสถานะกำลังค้นหา
+- มี Empty State
+- จัดการ Error จาก Firestore
+- ไม่ดึงข้อมูลทั้งหมดทุกครั้งที่พิมพ์ค้นหา
+
+ต้องคำนึงถึงข้อจำกัดของ Firestore เช่น การค้นหาข้อความบางรูปแบบ การ Query หลายเงื่อนไข และ Index Requirements
+
+หากต้องการ Full-text Search ขั้นสูง ให้ระบุข้อจำกัดและออกแบบแนวทางเพิ่มเติมโดยไม่อ้างว่า Firestore รองรับความสามารถดังกล่าวโดยตรงทั้งหมด
+
+สร้าง `firestore.indexes.json` ตาม Query ที่ใช้งานจริง
+
+---
+
+# 12. Firebase Security และ Data Protection
+
+ความปลอดภัยเป็นข้อกำหนดบังคับ
+
+## 12.1 Firestore Security Rules
+
+สร้างไฟล์ `firestore.rules` ที่ใช้งานได้จริงและสอดคล้องกับ Schema
+
+หลักการ:
+
+- ผู้เข้าชมทั่วไปอ่านได้เฉพาะเอกสารที่เผยแพร่แล้ว
+- ผู้เข้าชมทั่วไปเขียนข้อมูลไม่ได้
+- เฉพาะ Admin UID ที่ได้รับอนุญาตเท่านั้นที่สร้าง แก้ไข หรือลบข้อมูลได้
+- Drafts อ่านได้เฉพาะ Admin
+- Trash, Audit Logs, Version History และข้อมูล Import ภายในต้องเป็นส่วนตัว
+- ป้องกันการแก้ไข Role โดย Client
+- ป้องกันการเปลี่ยนสิทธิ์ Admin ผ่าน Frontend
+- ตรวจสอบข้อมูลที่เขียนตามความเหมาะสม
+- ไม่ใช้กฎเปิดทั้งหมด
+
+ห้ามใช้:
+
+`allow read, write: if true;`
+
+ห้ามใช้การซ่อนปุ่มใน Frontend เป็นมาตรการรักษาความปลอดภัยเพียงอย่างเดียว
+
+## 12.2 ตัวอย่างแนวคิด Security Rules
+
+ใช้แนวคิดต่อไปนี้เป็นแนวทางในการสร้าง Rules ที่สมบูรณ์ โดยต้องตรวจสอบให้ตรงกับ Schema จริงก่อนนำไปใช้
+
+```javascript
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.uid == "REPLACE_WITH_AUTHORIZED_ADMIN_UID";
+    }
+
+    match /museums/{museumId} {
+      allow read: if resource.data.status == "published"
+        || isAdmin();
+
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /subjects/{subjectId} {
+      allow read: if resource.data.status == "active"
+        || isAdmin();
+
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /siteSettings/{documentId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /graphSettings/{documentId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /articles/{articleId} {
+      allow read: if resource.data.status == "published"
+        || isAdmin();
+
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /museumVersions/{documentId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /trash/{documentId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /auditLogs/{documentId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /importJobs/{documentId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /importReports/{documentId} {
+      allow read, write: if isAdmin();
+    }
+  }
+}
+```
+
+ตัวอย่างนี้เป็นเพียงจุดเริ่มต้น ต้องปรับปรุงให้ครอบคลุมทุก Collection และตรวจสอบการ Query จริง
+
+ข้อควรระวัง:
+
+- Public queries ต้องสอดคล้องกับ Security Rules
+- การ Query เอกสารที่อาจมีทั้ง Draft และ Published ต้องออกแบบให้ปลอดภัย
+- `REPLACE_WITH_AUTHORIZED_ADMIN_UID` ต้องแทนด้วย UID จริงจาก Firebase Authentication
+- ห้ามใช้ Email จาก Frontend เพียงอย่างเดียวเป็นหลักฐานสิทธิ์ Admin
+- ต้องทดสอบ Rules ด้วย Firebase Emulator หรือเครื่องมือทดสอบที่เหมาะสม
+- ห้ามเปิด Rules กว้างเพื่อแก้ปัญหา Permission Denied โดยไม่ตรวจสอบสาเหตุ
+
+## 12.3 Secret Management
+
+ห้าม Commit สิ่งต่อไปนี้ลง GitHub:
+
+- Service Account Private Key
+- Firebase Admin SDK Credentials
+- Password
+- API Secret
+- Access Token
+- Private Environment Files
+- Credentials สำหรับ Deployment
+
+สร้าง `.gitignore` ที่เหมาะสม และสร้าง `.env.example` โดยใส่เฉพาะชื่อ Environment Variables ที่จำเป็นและค่า Placeholder
+
+Firebase Web Configuration ที่ใช้กับ Client ไม่ใช่สิ่งเดียวกับ Service Account Private Key แต่ต้องใช้ร่วมกับ Security Rules ที่ถูกต้องเสมอ
+
+## 12.4 Additional Protection
+
+พิจารณาเพิ่ม:
+
+- Firebase App Check
+- Rate Limiting สำหรับงานที่มีความเสี่ยง
+- Validation ก่อนบันทึกข้อมูล
+- จำกัดขนาดไฟล์ Import
+- จำกัดจำนวนรายการต่อ Batch
+- ป้องกัน XSS ในเนื้อหาบทความ
+- ป้องกันการนำ HTML ที่ไม่น่าเชื่อถือมา Render โดยตรง
+- ตรวจสอบ URL ก่อนแสดงภาพหรือลิงก์
+- Confirmation สำหรับงานที่ทำลายข้อมูล
+- Audit Log สำหรับการเปลี่ยนแปลงสำคัญ
+
+---
+
+# 13. การออกแบบ UX/UI และ Accessibility
+
+เว็บไซต์ต้องใช้งานได้จริง ไม่ใช่เพียงสวยงาม
+
+ข้อกำหนด:
+
+- Responsive สำหรับ Desktop, Tablet และ Mobile
+- Navigation ใช้งานง่าย
+- Typography อ่านภาษาไทยได้ดี
+- ปุ่มมี Hover, Focus, Active และ Disabled States
+- Input มี Label ชัดเจน
+- แสดง Validation Error ใกล้ช่องที่เกี่ยวข้อง
+- มี Loading Skeleton หรือ Progress Indicator
+- มี Empty States ที่ให้คำแนะนำแก่ผู้ใช้
+- มี Error Messages ที่เข้าใจง่าย
+- มี Confirmation Dialog สำหรับการกระทำสำคัญ
+- มี Keyboard Navigation
+- มี Focus Indicators
+- ใช้ Semantic HTML
+- มี Alt Text
+- ตรวจสอบ Contrast
+- ไม่ใช้สีเป็นวิธีสื่อความหมายเพียงอย่างเดียว
+- รองรับการ Zoom ของ Browser
+- ไม่ให้ข้อความภาษาไทยล้นกรอบ
+- ไม่ใช้ Animation มากเกินไป
+- รองรับ Reduced Motion เมื่อเหมาะสม
+- ใช้ Lazy Loading สำหรับรูปภาพ
+- มี Fallback เมื่อรูปภาพหรือข้อมูลโหลดไม่สำเร็จ
+
+หลีกเลี่ยงการใช้ Lorem Ipsum หรือข้อความจำลองในหน้าเว็บไซต์ที่นำเสนอเป็นผลงานจริง
+
+หากยังไม่มีข้อมูลสำหรับบางส่วน ให้ใช้ข้อความแจ้งสถานะที่ชัดเจนแทนการสร้างข้อมูลเท็จ
+
+---
+
+# 14. โครงสร้างไฟล์ที่คาดหวัง
+
+จัดโครงสร้างตามความเหมาะสมกับโปรเจกต์จริง โดยอาจใช้แนวทางดังนี้
+
+```text
+museum-atlas-thailand/
+├── public/
+├── src/
+│   ├── app/
+│   ├── components/
+│   ├── layouts/
+│   ├── pages/
+│   │   ├── Home/
+│   │   ├── MuseumDirectory/
+│   │   ├── MuseumDetail/
+│   │   ├── SubjectExplorer/
+│   │   ├── KnowledgeGraph/
+│   │   ├── Insights/
+│   │   ├── About/
+│   │   └── Admin/
+│   ├── services/
+│   │   ├── firebase/
+│   │   ├── museums/
+│   │   ├── subjects/
+│   │   ├── graph/
+│   │   ├── imports/
+│   │   └── exports/
+│   ├── hooks/
+│   ├── types/
+│   ├── utils/
+│   ├── styles/
+│   └── config/
+├── scripts/
+│   ├── inspect-data.*
+│   ├── import-data.*
+│   └── validate-data.*
+├── docs/
+│   ├── DATA_DICTIONARY.md
+│   ├── FIRESTORE_SCHEMA.md
+│   ├── SECURITY.md
+│   └── IMPORT_GUIDE.md
+├── firestore.rules
+├── firestore.indexes.json
+├── firebase.json
+├── .env.example
+├── .gitignore
+├── README.md
+├── package.json
+└── tsconfig.json
+```
+
+ปรับโครงสร้างได้ตามเครื่องมือที่ Google AI Studio ใช้จริง แต่ต้องรักษาการแยกหน้าที่ของส่วนประกอบและความสามารถในการบำรุงรักษา
+
+---
+
+# 15. GitHub และ Deployment
+
+เตรียมโปรเจกต์ให้สามารถนำไปเก็บใน GitHub และ Deploy ได้
+
+สิ่งที่ต้องมี:
+
+- Source Code ที่เป็นระเบียบ
+- README.md
+- คำแนะนำติดตั้ง
+- คำแนะนำตั้งค่า Firebase
+- `.env.example`
+- `.gitignore`
+- `firestore.rules`
+- `firestore.indexes.json`
+- `firebase.json` หากใช้ Firebase Hosting
+- Data Dictionary
+- Firestore Schema Documentation
+- Import Guide
+- Security Guide
+- วิธีทดสอบระบบ
+- วิธี Build และ Deploy
+
+README ต้องอธิบาย:
+
+1. วัตถุประสงค์ของโครงการ
+2. เทคโนโลยีที่ใช้
+3. วิธีติดตั้ง Dependencies
+4. วิธีตั้งค่า Firebase Project
+5. วิธีตั้งค่า Environment Variables
+6. วิธีสร้างบัญชี Admin ที่ได้รับอนุญาต
+7. วิธี Deploy Firestore Rules และ Indexes
+8. วิธี Import ชุดข้อมูล
+9. วิธี Run Development Server
+10. วิธี Build
+11. วิธี Deploy
+12. วิธีแก้ปัญหาที่พบบ่อย
+
+ห้ามอ้างว่า Repository ถูกสร้างหรือโค้ดถูก Push ขึ้น GitHub แล้ว หากยังไม่ได้ดำเนินการจริง
+
+หากเครื่องมือไม่สามารถสร้าง Repository หรือ Deploy ได้ ให้เตรียมไฟล์ทั้งหมดและแสดงขั้นตอนที่ฉันต้องทำต่ออย่างชัดเจน
+
+---
+
+# 16. Testing และ Quality Assurance
+
+ต้องตรวจสอบอย่างน้อยดังนี้
+
+## Public Website
+
+- หน้าแรกโหลดได้
+- Search ทำงานจริง
+- Filter ทำงานจริง
+- Pagination ทำงานจริง
+- Museum Detail แสดงข้อมูลจาก Firestore
+- Subject Explorer แสดงความสัมพันธ์จริง
+- Knowledge Graph แสดง Node และ Edge ที่ถูกต้อง
+- Insights คำนวณจากข้อมูลจริง
+- Source URI เปิดได้ตาม URL ต้นทาง
+- รูปภาพที่ผิดพลาดแสดง Placeholder
+- เว็บไซต์ใช้งานได้บนมือถือ
+- ไม่มีลิงก์ที่กดแล้วไม่ทำงาน
+
+## Admin
+
+- Login ด้วยบัญชีที่ได้รับอนุญาตได้
+- ผู้ไม่มีสิทธิ์ Admin เข้าถึงหน้าเขียนข้อมูลไม่ได้
+- สร้างและแก้ไข Museum ได้
+- สร้างและแก้ไข Subject ได้
+- Site Settings บันทึกลง Firestore จริง
+- Import ตรวจสอบข้อมูลก่อนบันทึก
+- Export สร้างไฟล์ที่อ่านได้
+- Soft Delete และ Restore ทำงานได้
+- Version History ทำงานได้
+- Audit Logs ถูกบันทึกตามการกระทำ
+- การแก้ไขข้อมูลถูกจำกัดด้วย Security Rules
+
+## Data Integrity
+
+- จำนวนข้อมูลหลัง Import ถูกต้อง
+- ไม่มีข้อมูลซ้ำจากการ Import ซ้ำโดยไม่ตั้งใจ
+- Source Fields ถูกเก็บครบ
+- Subject Relationships ถูกต้อง
+- ไม่มี Edge ซ้ำที่เกิดจากการประมวลผลซ้ำ
+- ไม่เกิดข้อมูลที่ไม่มี Source
+- การลบหรือรวม Subject ไม่ทำให้ความสัมพันธ์เสียหาย
+- Firestore Indexes ตรงกับ Query จริง
+
+## Build และ Runtime
+
+- ติดตั้ง Dependencies ได้
+- Build ผ่าน
+- ไม่มี TypeScript Errors ที่ยังไม่ได้แก้
+- ไม่มี Runtime Errors สำคัญ
+- ไม่มี Secret ใน Source Code
+- Firestore Rules ผ่านการตรวจสอบ
+- ตรวจสอบ Console และ Network Errors
+- ทดสอบ Loading, Empty และ Error States
+
+อย่ารายงานว่าผ่านการทดสอบใด หากยังไม่ได้ทดสอบจริง
+
+---
+
+# 17. ลำดับการทำงานที่ต้องปฏิบัติ
+
+ดำเนินงานตาม Phase ดังนี้
+
+## Phase 1: Audit
+
+- ตรวจสอบ ZIP
+- ตรวจสอบโครงสร้างข้อมูล
+- ตรวจสอบโปรเจกต์เดิม
+- ระบุ Dependencies
+- สรุป Data Schema จริง
+- ระบุปัญหาและข้อจำกัด
+
+## Phase 2: Architecture & Security
+
+- วาง Firestore Schema
+- ออกแบบ Admin Authentication
+- ออกแบบ Security Rules
+- ออกแบบ Data Import
+- ออกแบบ Subject Relationships
+- ออกแบบ Knowledge Graph Schema
+- วางโครงสร้างไฟล์
+
+## Phase 3: Core Application
+
+- สร้าง Design System
+- สร้าง Layout และ Navigation
+- สร้าง Home
+- สร้าง Museum Directory
+- สร้าง Museum Detail
+- สร้าง Subject Explorer
+- สร้าง About & Sources
+
+## Phase 4: Database Integration
+
+- เชื่อม Firebase
+- เชื่อม Firestore
+- สร้าง Query Services
+- สร้าง Search และ Filter
+- สร้าง Loading และ Error Handling
+- ทดสอบกับข้อมูลจริง
+
+## Phase 5: Admin System
+
+- Admin Login
+- Admin Dashboard
+- Museum CRUD
+- Subject Management
+- Site Settings
+- Image URL Management
+- Trash & Restore
+- Version History
+- Audit Logs
+
+## Phase 6: Data Pipeline
+
+- CSV/JSON Inspection
+- Import Preview
+- Validation
+- Duplicate Detection
+- Import Execution
+- Import Reports
+- Export CSV/JSON
+
+## Phase 7: Knowledge Graph & Insights
+
+- สร้าง Nodes และ Edges
+- เชื่อมข้อมูลกับ Firestore
+- สร้าง Filters
+- สร้าง Node Details
+- สร้าง Neighbor Expansion
+- สร้าง Graph Export
+- สร้าง Charts และ Data Insights
+
+## Phase 8: Testing & Release Preparation
+
+- ทดสอบทุกหน้า
+- ทดสอบ Security Rules
+- ตรวจสอบข้อมูล
+- ตรวจสอบ Performance
+- ตรวจสอบ Responsive UI
+- แก้ Error
+- จัดทำ README
+- เตรียม GitHub และ Deployment
+
+หากไม่สามารถทำทุก Phase ได้ในคำตอบเดียว ให้ทำงานเป็นลำดับ โดยรักษาโครงสร้างและบริบทของโปรเจกต์ ไม่สร้างโค้ดซ้ำหรือเขียนทับไฟล์ที่ทำเสร็จแล้วโดยไม่จำเป็น
+
+---
+
+# 18. เกณฑ์การยอมรับผลงาน
+
+ผลงานถือว่าพร้อมส่งมอบเมื่อ:
+
+1. เว็บไซต์ใช้ชื่อ MUSEUM ATLAS THAILAND และชุดสีแบรนด์ที่กำหนด
+2. โครงสร้างข้อมูลมาจากไฟล์ ZIP ที่ตรวจสอบจริง
+3. ข้อมูลต้นฉบับได้รับการเก็บรักษา
+4. Public Website ใช้งานได้โดยไม่ต้อง Login
+5. มี Admin ที่ได้รับอนุญาตเพียงหนึ่งบัญชี
+6. Admin สามารถจัดการข้อมูลผ่าน Firestore จริง
+7. Security Rules ไม่เปิดให้ผู้ใช้ทั่วไปเขียนข้อมูล
+8. ไม่มี Firebase Storage
+9. รูปภาพใช้ External URLs เท่านั้น
+10. Import และ Export ทำงานได้
+11. Knowledge Graph ใช้ความสัมพันธ์ที่มีหลักฐานรองรับ
+12. Insights ใช้ข้อมูลจริง
+13. มี Version History, Trash และ Audit Logs ตามขอบเขตที่กำหนด
+14. รองรับ Responsive UI
+15. มี README และเอกสารประกอบ
+16. ไม่มี Password หรือ Service Account Secrets ใน GitHub
+17. Build และการทดสอบสำคัญผ่านตามที่รายงาน
+18. ระบุข้อจำกัดหรือการตั้งค่าที่ฉันต้องทำต่ออย่างตรงไปตรงมา
+
+---
+
+# 19. คำสั่งสุดท้าย
+
+เริ่มต้นด้วยการตรวจสอบไฟล์ ZIP และโครงสร้างโปรเจกต์ที่มีอยู่ก่อน ห้ามเริ่มจากการสร้างข้อมูลจำลองเพื่อทำให้หน้าเว็บดูสมบูรณ์
+
+จากนั้นให้สร้างแผนการทำงานสั้น ๆ พร้อมระบุไฟล์ที่ต้องสร้างหรือแก้ไข แล้วเริ่มลงมือพัฒนาตามลำดับที่เหมาะสม
+
+ให้ความสำคัญกับความถูกต้องของข้อมูล ความปลอดภัย การใช้งานจริง และความสามารถในการบำรุงรักษา มากกว่าการสร้างหน้าตาที่ดูสวยเพียงอย่างเดียว
+
+หากต้องเลือกระหว่างการสร้าง Feature ที่ดูน่าสนใจกับการรักษาความถูกต้องของข้อมูล ให้เลือกความถูกต้องของข้อมูลก่อน
+
+หากพบข้อจำกัดจาก Google AI Studio หรือ Firebase ให้บอกข้อจำกัดอย่างชัดเจนและสร้างแนวทางที่สามารถทำงานได้จริง โดยไม่อ้างว่าฟังก์ชันที่ยังไม่ได้สร้างหรือทดสอบนั้นเสร็จสมบูรณ์แล้ว

@@ -1,0 +1,120 @@
+@import "tailwindcss";
+
+:root {
+  --color-primary-brown: #5c3d26;
+  --color-deep-brown: #382415;
+  --color-teak-brown: #4a301d;
+  --color-warm-bronze: #7a5230;
+  --color-antique-gold: #b38742;
+  --color-heritage-gold: #e6c12f;
+  --color-warm-gold: #e8c742;
+
+  --color-text-primary: #382415;
+  --color-text-secondary: #634b39;
+  --color-text-muted: #806754;
+  --color-surface: #fffdf9;
+  --color-surface-glass: rgba(255, 253, 249, 0.9);
+  --color-border: #d6c3ad;
+  --color-border-subtle: rgba(214, 195, 173, 0.6);
+}
+
+body {
+  font-family: 'Prompt', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: #faf5ed;
+  background-image: 
+    radial-gradient(ellipse at 50% 0%, rgba(255, 253, 248, 0.72) 0%, rgba(248, 241, 230, 0.84) 100%),
+    url('/assets/aistudio/_________15455181.png');
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center top;
+  color: var(--color-text-primary);
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+}
+
+/* Ornate Thai looped serif font for grand, majestic headings and royal heritage titles */
+.font-editorial,
+.font-serif-thai {
+  font-family: 'Noto Serif Thai', 'Playfair Display', Georgia, serif;
+}
+
+/* Modern loopless contemporary font for crisp UI labels, navigation and metadata */
+.font-heading,
+.font-modern {
+  font-family: 'Prompt', 'Kanit', 'Plus Jakarta Sans', sans-serif;
+}
+
+.font-display {
+  font-family: 'Cinzel', 'Noto Serif Thai', Georgia, serif;
+}
+
+/* Expert Parchment Glass Card for museum displays */
+.thai-parchment-card {
+  background-color: rgba(255, 253, 249, 0.88);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(203, 180, 153, 0.65);
+  box-shadow: 0 4px 20px -2px rgba(92, 61, 38, 0.06), 0 2px 6px -1px rgba(92, 61, 38, 0.04);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.thai-parchment-card:hover {
+  border-color: rgba(140, 98, 57, 0.8);
+  box-shadow: 0 10px 25px -3px rgba(92, 61, 38, 0.12), 0 4px 10px -2px rgba(92, 61, 38, 0.06);
+  transform: translateY(-2px);
+}
+
+/* Siamese Heritage Brown Primary Button */
+.btn-siamese-brown {
+  background: linear-gradient(135deg, #5c3d26 0%, #432818 100%);
+  color: #fffdf7;
+  border: 1px solid rgba(230, 193, 47, 0.35);
+  box-shadow: 0 2px 8px rgba(56, 36, 21, 0.2);
+  transition: all 0.2s ease;
+}
+
+.btn-siamese-brown:hover {
+  background: linear-gradient(135deg, #6d492e 0%, #4f301d 100%);
+  border-color: rgba(230, 193, 47, 0.65);
+  box-shadow: 0 4px 14px rgba(56, 36, 21, 0.3);
+  transform: translateY(-1px);
+}
+
+/* Elegant traditional Thai ornament divider */
+.thai-ornament-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: #b38742;
+}
+
+.thai-ornament-divider::before,
+.thai-ornament-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(179, 135, 66, 0.4), transparent);
+}
+
+/* Custom scrollbars for clean museum editorial look */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(245, 239, 230, 0.8);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #bfa58a;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #8c6239;
+}

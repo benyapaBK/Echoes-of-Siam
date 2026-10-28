@@ -1,0 +1,883 @@
+# MASTER UI/UX REDESIGN PROMPT
+# ECHOES OF SIAM — MODERN INTERACTIVE DIGITAL HERITAGE EXPERIENCE
+
+## 1. YOUR ROLE
+
+You are a Senior UI/UX Designer, Creative Director, Frontend Engineer, Motion Designer, and Interactive Web Experience Specialist.
+
+Your task is to perform a major visual and interaction redesign of the existing website:
+
+**Echoes of Siam — สยามเล่าขาน: ภูมิปัญญาไทยในพิพิธภัณฑ์**
+
+The current website feels too old-fashioned, traditional, static, and visually dated. Transform it into a modern, premium, immersive, interactive digital museum discovery platform with a strong contemporary visual identity.
+
+The redesign must feel significantly more modern, sophisticated, dynamic, and technology-forward than the current implementation.
+
+However, this is a visual and interaction redesign, NOT a replacement of the website's underlying application.
+
+**Preserve all existing functionality, important content, brand identity, real data, routes, and integrations.**
+
+Do not remove features simply because they are difficult to redesign.
+
+Do not rebuild the application from scratch unless absolutely necessary.
+
+Inspect the existing source code, components, routes, Firebase configuration, data structures, and current UI before making changes.
+
+---
+
+## 2. CORE DESIGN DIRECTION
+
+Create a design language combining:
+
+- Modern Digital Museum
+- Contemporary Thai Heritage
+- Interactive Knowledge Discovery
+- Premium Editorial Design
+- Cinematic Digital Exhibition
+- Subtle Glassmorphism
+- Sophisticated Motion Design
+- Data Visualization and Knowledge Graph Exploration
+
+The result should resemble a premium digital cultural institution, interactive exhibition, and contemporary knowledge platform rather than an old-fashioned archive website.
+
+The website must communicate both:
+
+1. The cultural depth and authenticity of Thai heritage.
+2. The innovation and interactivity of modern digital technology.
+
+Do not turn the website into a generic futuristic dashboard.
+
+Do not use excessive cyberpunk neon, excessive gradients, cartoonish interface elements, or glowing effects everywhere.
+
+The modern aesthetic must remain elegant, readable, accessible, and appropriate for museums, history, artifacts, and cultural knowledge.
+
+---
+
+## 3. ABSOLUTE PRESERVATION RULES
+
+These requirements take priority over all visual redesign decisions.
+
+### 3.1 Preserve the existing homepage banner
+
+The existing homepage hero/banner is a critical brand element.
+
+- Do not delete the existing banner.
+- Do not replace it with a completely unrelated image.
+- Do not remove the official Echoes of Siam logo.
+- Do not change the website name or brand identity.
+- Do not remove the banner's essential visual composition.
+- Do not crop important content or decorative elements.
+- Do not cover the banner with excessive overlays.
+- Do not move the banner to an unrelated page.
+- Do not remove existing banner links, buttons, or content.
+
+Instead, improve how the existing banner is presented.
+
+Possible improvements include:
+
+- More sophisticated surrounding layout.
+- Improved spacing and alignment.
+- Modern typography hierarchy.
+- Responsive sizing and cropping.
+- Subtle background movement.
+- Carefully controlled parallax.
+- Soft ambient light effects.
+- Elegant reveal animations.
+- Refined button design.
+- Better contrast between text and image.
+- A subtle modern frame or supporting visual elements.
+
+If the current banner is an image containing its own logo or typography, preserve its original composition. Do not overlay duplicate titles or logos.
+
+If a more immersive presentation requires additional supporting elements, add them around the existing banner rather than replacing it.
+
+### 3.2 Preserve all existing website functionality
+
+Before editing, inventory the existing functionality and create a preservation checklist.
+
+Keep all existing working features, including where present:
+
+- Homepage and hero banner.
+- Museum Directory.
+- Museum search.
+- Search filters.
+- Pagination.
+- Museum detail pages.
+- Subject Explorer.
+- Subject search and subject relationships.
+- Knowledge Graph.
+- Graph filtering and node interactions.
+- Insights and statistics.
+- About and Sources.
+- Admin authentication.
+- Admin dashboard.
+- Museum record management.
+- Subject management.
+- Content and article management.
+- Image URL management.
+- CSV/JSON import.
+- Data export.
+- Soft Delete and Trash.
+- Restore functionality.
+- Version History.
+- Audit Logs.
+- Site Settings.
+- Firebase Authentication.
+- Cloud Firestore integration.
+- Existing chatbot and the mascot “น้องมิวมิว”.
+- Existing cursor settings or custom cursor functionality, if implemented.
+- Existing responsive layouts.
+- Existing data import and synchronization processes.
+
+The list above is a preservation checklist, not permission to invent missing features. Verify which features already exist before changing them.
+
+Do not silently remove incomplete features. If a feature is currently broken, report it separately and preserve its intended functionality while improving the implementation safely.
+
+### 3.3 Preserve the existing data architecture
+
+- Keep the current technology stack.
+- Reuse existing components where appropriate.
+- Preserve route names and navigation behavior.
+- Preserve Firebase Authentication behavior.
+- Preserve Firestore collection names, field names, document IDs, and relationships unless a verified migration is absolutely necessary.
+- Do not reset or overwrite production data.
+- Do not generate fake museum records or fake statistics.
+- Do not change Firestore Security Rules to public unrestricted access.
+- Do not replace real data with static mock data.
+- Do not claim that an integration works unless it has been tested.
+
+---
+
+## 4. BRAND IDENTITY AND COLOR SYSTEM
+
+Keep the established Echoes of Siam brand palette.
+
+Core colors:
+
+- Heritage Brown: `#9c7d5c`
+- Warm Beige: `#ece4d4`
+- Pale Yellow: `#fff9c4`
+- Soft Yellow: `#fff59d`
+- Heritage Gold: `#e6c12f`
+- Warm Gold: `#e8c742`
+
+Supporting colors:
+
+- Primary Text: `#463629`
+- Secondary Text: `#6f5a45`
+- Surface: `#fffdf7`
+- Border: `#d7c8b2`
+
+The palette must remain recognizable, but its application should become more modern.
+
+### Recommended color application
+
+Use warm cream or near-white surfaces for reading-heavy pages.
+
+Use dark brown or deep neutral surfaces selectively for immersive sections, the Knowledge Graph, featured exhibitions, and cinematic visual moments.
+
+Use gold as a highlight for active states, selected nodes, important actions, subtle borders, and animation accents.
+
+Use pale yellow for soft background highlights and selected content.
+
+Do not use saturated yellow as a large text background.
+
+Do not make every component gold or brown.
+
+Avoid thick decorative gold borders around every card.
+
+Use subtle Thai-inspired motifs at low opacity, preferably in the background or as small accents.
+
+Maintain sufficient contrast for text and controls.
+
+Create CSS variables or update the existing design tokens so that colors can be managed consistently.
+
+---
+
+## 5. GLOBAL VISUAL TRANSFORMATION
+
+Redesign the visual system across the entire website.
+
+### 5.1 Typography
+
+Replace the dated typographic hierarchy with a contemporary editorial system.
+
+Use:
+
+- Clear display typography for major headings.
+- Highly readable Thai body typography.
+- Consistent heading sizes and weights.
+- More whitespace between headings and content.
+- Shorter text line lengths where appropriate.
+- Strong contrast between primary and secondary information.
+- Responsive font sizing using `clamp()` where appropriate.
+
+Use a modern Thai-compatible font already available in the project, or introduce a suitable font with a reliable fallback.
+
+Do not sacrifice Thai character rendering or readability for decorative typography.
+
+Avoid excessive script fonts and overly ornate serif fonts.
+
+### 5.2 Layout and spacing
+
+- Use a consistent spacing scale.
+- Use responsive grids.
+- Increase whitespace around important content.
+- Avoid crowded rows of cards.
+- Align content to a consistent container.
+- Use modern asymmetric layouts only where they improve hierarchy.
+- Avoid excessive rounded cards everywhere.
+- Use varied but consistent layouts for different content types.
+- Ensure that the design works at mobile, tablet, laptop, and large desktop widths.
+
+### 5.3 Surfaces and depth
+
+Introduce a sophisticated combination of:
+
+- Clean flat surfaces.
+- Subtle elevation.
+- Soft shadows.
+- Fine borders.
+- Layered backgrounds.
+- Selective translucent surfaces.
+- Small amounts of glassmorphism.
+- Delicate gold highlights.
+
+Use glassmorphism only when it improves visual hierarchy. Do not make all content transparent or blurry.
+
+Avoid heavy shadows, excessive bevels, dated embossed effects, and overly ornamental frames.
+
+### 5.4 Modern heritage background
+
+Use subtle Thai-inspired patterns as supporting visual texture.
+
+- Keep patterns low contrast.
+- Avoid placing busy patterns behind body text.
+- Use them in section backgrounds, decorative dividers, or selected hero areas.
+- Preserve the warm heritage palette.
+- Prefer clean geometric arrangements inspired by Thai motifs rather than dense vintage ornamentation.
+
+The background must support the content, not compete with it.
+
+---
+
+## 6. HOMEPAGE REDESIGN
+
+The homepage should feel immersive and interactive immediately, while preserving the existing banner.
+
+### 6.1 Existing hero/banner
+
+Preserve the current banner and improve its presentation.
+
+Add only compatible enhancements such as:
+
+- Smooth entrance animation.
+- Subtle ambient lighting.
+- Background depth.
+- Responsive image presentation.
+- Improved surrounding spacing.
+- Refined call-to-action placement.
+- Small animated heritage details.
+- Optional parallax that does not interfere with reading.
+
+If the banner already contains text and logo, avoid duplicating them.
+
+Do not create a second competing hero section.
+
+### 6.2 Search experience
+
+Make museum discovery the primary user action.
+
+Improve the search interface with:
+
+- A prominent, modern search field.
+- Clear placeholder text.
+- Search icon and keyboard interaction.
+- Search suggestions when supported by actual data.
+- Recent searches only if the existing application supports or can safely implement them.
+- Suggested subjects based on real records.
+- Clear filters.
+- Loading indicators.
+- Helpful empty states.
+- Smooth transitions between search results.
+
+Search must use the existing real dataset.
+
+Do not generate fictional suggestions or results.
+
+### 6.3 Interactive featured content
+
+Use a modern editorial layout to highlight existing museum records and subjects.
+
+Possible patterns:
+
+- Featured museum spotlight.
+- Horizontally scrollable museum collections.
+- Interactive subject cards.
+- Featured cultural themes.
+- Recently added records, only if actual timestamps exist.
+- Recommended related records, based on verified data relationships.
+
+Cards should have meaningful hover states, subtle image zoom, refined borders, and smooth transitions.
+
+Clicking a card must navigate to the correct existing detail page.
+
+Do not add decorative cards that look interactive but do nothing.
+
+### 6.4 Real data statistics
+
+If the homepage displays museum counts, subject counts, or other statistics, use actual data.
+
+Animate numbers only after real values have loaded.
+
+Use skeleton loading states rather than hardcoded fake numbers.
+
+If data is unavailable, show a clear loading or unavailable state.
+
+### 6.5 Homepage knowledge discovery
+
+Introduce a visually compelling preview of the Knowledge Graph.
+
+- Show a small, performant preview of real nodes and relationships.
+- Animate selected connections subtly.
+- Allow clicking a node to open its associated information.
+- Provide a clear action to explore the full Knowledge Graph.
+- Do not load an enormous graph just to create a decorative animation.
+- Respect the existing graph implementation and data model.
+
+---
+
+## 7. MUSEUM DIRECTORY REDESIGN
+
+Make the directory feel like a contemporary digital collection.
+
+### 7.1 Search and filters
+
+- Use a modern filter panel or expandable filter drawer.
+- Make active filters visually obvious.
+- Show removable filter chips.
+- Include a Clear All action.
+- Use existing search fields and filtering capabilities.
+- Keep sorting and pagination functional.
+- Preserve the existing data semantics.
+
+On mobile, filters may open in a drawer or bottom sheet.
+
+### 7.2 Museum cards
+
+Create modern museum cards with:
+
+- A clear title.
+- Relevant metadata.
+- Subject tags.
+- Location information when available.
+- An image only when a valid image exists.
+- Subtle hover or focus animation.
+- Clear navigation behavior.
+
+Use a graceful placeholder if no image is available.
+
+Do not fabricate image URLs or imply that an unavailable image belongs to a particular museum.
+
+Avoid making every card identical if editorial variation can improve readability without harming consistency.
+
+### 7.3 Directory interaction
+
+Support:
+
+- Keyboard-accessible cards.
+- Smooth filter changes.
+- Loading skeletons.
+- Empty search states.
+- Error states.
+- Pagination feedback.
+- Mobile-friendly touch targets.
+
+Do not reset the user's search or filter state unexpectedly during unrelated UI updates.
+
+---
+
+## 8. MUSEUM DETAIL PAGE REDESIGN
+
+Make individual records feel like carefully curated digital exhibits.
+
+Use a modern information hierarchy:
+
+- Museum title.
+- Available images.
+- Important metadata.
+- Subjects.
+- Description and original fields.
+- Location or temporal information when available.
+- Rights and License.
+- Source URI.
+- Related museums based on actual shared subjects.
+- Related subject links.
+- A link to explore verified relationships in the Knowledge Graph.
+
+Use collapsible sections for long metadata when appropriate.
+
+Preserve the original source fields and source provenance.
+
+Do not rewrite or omit important source information simply to achieve a cleaner design.
+
+Use smooth expand/collapse animations and clear visual grouping.
+
+Do not imply historical connections unsupported by the dataset.
+
+---
+
+## 9. SUBJECT EXPLORER REDESIGN
+
+Transform Subject Explorer into an interactive discovery experience.
+
+Possible UI enhancements:
+
+- Searchable subject index.
+- Alphabetical or frequency-based sorting where supported.
+- Subject chips.
+- Dynamic result counts.
+- Expandable subject details.
+- Related subject suggestions based on actual co-occurrence.
+- Interactive connections between subjects and museums.
+- Quick navigation to related museum records.
+- Smooth filtering and selection states.
+
+If the existing dataset stores multiple subject terms in one field, preserve the original raw value and use the project's established normalization process.
+
+Do not silently merge different terms or invent synonyms.
+
+All displayed counts must come from actual data.
+
+---
+
+## 10. KNOWLEDGE GRAPH — MAKE IT A SIGNATURE EXPERIENCE
+
+The Knowledge Graph should be one of the most visually distinctive parts of the website.
+
+Use the existing graph technology and preserve its data relationships.
+
+### Visual direction
+
+- Elegant dark-brown or neutral canvas where appropriate.
+- Gold and cream node accents.
+- Clear node hierarchy.
+- Fine connection lines.
+- Soft highlight effects.
+- Subtle node animations.
+- Smooth zoom and pan.
+- Selected-node emphasis.
+- Clear labels that remain readable.
+- A clean legend.
+- A modern side panel for selected-node details.
+
+### Interactions
+
+- Click a node to select it.
+- Hover or focus to reveal concise information.
+- Click a connected node to explore relationships.
+- Expand neighboring nodes on demand.
+- Search for a museum or subject.
+- Filter by node type.
+- Reset the view.
+- Zoom in and out.
+- Drag the graph canvas.
+- Support keyboard-accessible alternatives where practical.
+- Show details in a side panel or responsive drawer.
+- Provide a clear path back to the directory or museum detail page.
+
+### Performance
+
+- Do not render all nodes simultaneously if the dataset is large.
+- Use lazy loading or neighborhood expansion.
+- Avoid excessive continuous animation.
+- Avoid rebuilding the entire graph on every interaction.
+- Provide a loading state and an empty state.
+- Preserve the existing relationship semantics.
+
+Use only relationships supported by the data.
+
+Do not create fictional connections to make the graph look more impressive.
+
+---
+
+## 11. INSIGHTS AND DATA VISUALIZATION
+
+Redesign Insights as a contemporary analytical view rather than a collection of old-fashioned static charts.
+
+Where the existing data supports it, use:
+
+- Modern chart layouts.
+- Responsive charts.
+- Hover tooltips.
+- Interactive legends.
+- Filterable views.
+- Animated chart entrances.
+- Clear labels and units.
+- Accessible alternatives for important chart information.
+
+Use the project's existing chart library when possible.
+
+All charts must reflect real dataset values.
+
+Do not hardcode statistics or fabricate geographic distributions.
+
+Only render map visualizations when the dataset contains reliable geographic information.
+
+Provide a concise explanation of what each chart represents and its data limitations.
+
+---
+
+## 12. MODERN INTERACTIONS AND MOTION SYSTEM
+
+Introduce a coherent motion design system.
+
+Motion should make the website feel responsive and alive without becoming distracting.
+
+### 12.1 Micro-interactions
+
+Implement appropriate interactions for:
+
+- Buttons.
+- Navigation items.
+- Search fields.
+- Filter chips.
+- Cards.
+- Tabs.
+- Accordions.
+- Modal dialogs.
+- Tooltips.
+- Graph nodes.
+- Copy actions.
+- Save and confirmation actions.
+- Loading indicators.
+
+Examples:
+
+- A button gently changes elevation or brightness on hover.
+- A card image zooms slightly within its container.
+- A selected filter chip transitions into an active state.
+- A selected graph node gains a restrained highlight.
+- A panel opens with a short opacity and transform transition.
+- A successful save displays a clear confirmation.
+
+Do not animate elements in ways that make text move while the user is trying to read it.
+
+### 12.2 Scroll-based reveals
+
+Use restrained reveal animations for selected content sections.
+
+- Use opacity and small translate transitions.
+- Avoid large entrance movements.
+- Do not delay important content excessively.
+- Avoid scroll-jacking.
+- Never disable normal browser scrolling.
+- Do not require animation to reveal essential information.
+
+### 12.3 Parallax and ambient effects
+
+Optional effects:
+
+- Subtle background parallax in the hero area.
+- Slowly moving light accents.
+- Gentle decorative particles.
+- Small gold glints on selected heritage elements.
+- Subtle background pattern movement.
+
+These effects must be low intensity and must not obscure content or interfere with pointer interactions.
+
+### 12.4 Animation implementation
+
+- Prefer CSS transitions and keyframes for simple effects.
+- Reuse existing animation libraries if already installed.
+- Do not add a large animation dependency for a minor effect.
+- Use `transform` and `opacity` for performant animations.
+- Avoid continuous animations that consume excessive CPU or battery.
+- Respect `prefers-reduced-motion`.
+- Disable unnecessary effects on low-power or touch-oriented devices where appropriate.
+
+---
+
+## 13. NONG MEW MEW MASCOT INTEGRATION
+
+Preserve the existing mascot named **น้องมิวมิว (Nong Mew Mew)** and its established character design.
+
+Do not replace the mascot or change its core appearance.
+
+Improve its presentation to fit the modern website.
+
+Possible improvements:
+
+- Subtle floating animation.
+- Refined shadow and depth.
+- Smooth opening and closing of the chatbot.
+- A modern chat panel.
+- Clear typing indicators.
+- Small greeting animations.
+- Better positioning relative to mobile screens.
+- Consistent styling with the website.
+
+Preserve all existing mascot features, including state images, Admin position controls, image management, chat settings, FAQ management, and saved configuration.
+
+Do not make the mascot obstruct essential controls.
+
+Do not introduce excessive bouncing or distracting animation.
+
+---
+
+## 14. MODERN NAVIGATION AND HEADER
+
+Improve the existing navigation without removing any important links.
+
+Potential enhancements:
+
+- Refined spacing.
+- Clear active-route indicator.
+- Smooth dropdown menus.
+- Responsive mobile navigation.
+- Subtle sticky-header behavior if compatible with the existing layout.
+- Modern focus states.
+- Clear separation between public navigation and Admin access.
+- A restrained translucent background only when it improves legibility.
+
+Do not hide important navigation items merely to achieve a minimal appearance.
+
+Do not break direct links, browser history, or existing routes.
+
+The header must remain compatible with the existing homepage banner.
+
+---
+
+## 15. MODERN FOOTER
+
+Retain existing essential footer content, links, and Admin access.
+
+Improve visual hierarchy with:
+
+- Better spacing.
+- Clear section grouping.
+- Refined typography.
+- Subtle Thai-inspired decoration.
+- A clean brand signature.
+- Accessible link states.
+
+Do not remove legal, source, attribution, or administrative links.
+
+---
+
+## 16. ADMIN INTERFACE
+
+Modernize the Admin interface as well, but preserve all existing management functionality.
+
+Use a clean, professional administrative design with:
+
+- Responsive navigation.
+- Clear section hierarchy.
+- Modern forms.
+- Searchable tables.
+- Filterable records.
+- Accessible dialogs.
+- Loading and saving indicators.
+- Toast notifications.
+- Clear error messages.
+- Confirmation before destructive actions.
+- Better spacing and consistent design tokens.
+
+Keep all existing management operations and their underlying behavior.
+
+Do not replace real database operations with decorative mock buttons.
+
+Do not weaken authentication or database permissions.
+
+Admin visual changes must not alter public data or overwrite existing records.
+
+---
+
+## 17. RESPONSIVE DESIGN
+
+The redesign must work well on:
+
+- Large desktop.
+- Standard laptop.
+- Tablet.
+- Mobile portrait.
+- Mobile landscape.
+
+Use responsive CSS Grid and Flexbox.
+
+Use responsive typography.
+
+Prevent horizontal overflow.
+
+Keep touch targets comfortably sized.
+
+Ensure the banner remains visually coherent across different aspect ratios.
+
+Do not simply shrink the desktop interface on mobile.
+
+For the Knowledge Graph, provide a usable mobile interaction model rather than trying to display the entire desktop control panel at once.
+
+Respect mobile safe areas.
+
+Ensure the chatbot and mascot do not cover important buttons.
+
+---
+
+## 18. ACCESSIBILITY AND PERFORMANCE
+
+Maintain or improve accessibility.
+
+- Use semantic HTML.
+- Preserve visible keyboard focus.
+- Provide meaningful accessible labels.
+- Maintain sufficient text contrast.
+- Ensure interactions work without a mouse.
+- Respect reduced-motion preferences.
+- Avoid animation that causes flashing.
+- Do not rely on color alone to communicate state.
+
+Performance requirements:
+
+- Lazy-load noncritical images.
+- Avoid loading unnecessary libraries.
+- Prevent layout shifts.
+- Avoid large animated backgrounds.
+- Optimize image presentation without changing source assets destructively.
+- Avoid expensive blur filters over large screen areas.
+- Keep the website responsive while the Knowledge Graph is active.
+- Preserve error handling and loading states.
+
+---
+
+## 19. IMPLEMENTATION STRATEGY
+
+Do not begin by replacing the entire application.
+
+Follow these steps:
+
+### Phase 1 — Audit
+
+Inspect:
+
+- Existing source files.
+- Homepage banner.
+- Logo and brand assets.
+- Current CSS and design tokens.
+- Shared layout components.
+- Existing routes.
+- Search and filtering.
+- Knowledge Graph implementation.
+- Firebase and Firestore integration.
+- Admin interface.
+- Mascot and chatbot.
+- Existing cursor functionality, if implemented.
+
+Create a list of important elements that must not change.
+
+### Phase 2 — Establish the design system
+
+Define reusable tokens for:
+
+- Colors.
+- Typography.
+- Spacing.
+- Border radius.
+- Shadows.
+- Motion durations.
+- Easing curves.
+- Responsive breakpoints.
+- Focus states.
+- Surface styles.
+
+Update existing tokens where possible rather than creating conflicting styles.
+
+### Phase 3 — Redesign shared components
+
+Start with:
+
+1. Global layout.
+2. Header and navigation.
+3. Typography.
+4. Buttons.
+5. Inputs and search.
+6. Cards.
+7. Modals and drawers.
+8. Tooltips.
+9. Loading and empty states.
+10. Footer.
+
+### Phase 4 — Redesign each page
+
+Update the homepage, directory, detail pages, Subject Explorer, Knowledge Graph, Insights, About, and Admin interface while preserving their behavior.
+
+### Phase 5 — Add interaction and motion
+
+Implement the motion system after the layout and component structure are stable.
+
+### Phase 6 — Regression testing
+
+Verify that the redesign has not broken:
+
+- Navigation.
+- Search.
+- Filtering.
+- Pagination.
+- Museum details.
+- Subject relationships.
+- Knowledge Graph.
+- Insights.
+- Admin operations.
+- Authentication.
+- Firestore data access.
+- Import and export.
+- Mascot and chatbot.
+- Responsive behavior.
+
+### Phase 7 — Final report
+
+Report:
+
+- Components changed.
+- Pages redesigned.
+- Interactions added or improved.
+- Features preserved.
+- Tests actually performed.
+- Remaining issues.
+- Any steps requiring manual configuration.
+
+Do not claim tests passed unless they were actually executed.
+
+---
+
+## 20. FINAL CREATIVE DIRECTION
+
+The final website should feel:
+
+- Much more modern than the current design.
+- Immersive but not overwhelming.
+- Technologically sophisticated.
+- Interactive and discoverable.
+- Elegant and culturally respectful.
+- Premium without feeling commercial.
+- Suitable for a contemporary digital museum.
+- Visually coherent across all pages.
+
+The Thai heritage identity should remain present through the brand palette, subtle patterns, artifacts, typography, and storytelling.
+
+However, the interface must no longer feel like an old-fashioned archive or a website covered in traditional ornaments.
+
+Use contemporary layout, refined typography, elegant motion, depth, visual hierarchy, and meaningful interactions to make the heritage content feel alive.
+
+## FINAL NON-NEGOTIABLE INSTRUCTION
+
+**Make the website substantially more modern and interactive, but preserve the existing homepage banner, official logo, brand identity, real museum data, routes, Firebase integration, Admin operations, Knowledge Graph semantics, mascot features, and all other working functionality.**
+
+Do not delete features to simplify the redesign.
+
+Do not replace the current banner with an unrelated design.
+
+Do not replace real data with mock content.
+
+Do not create fake functionality.
+
+Inspect the existing project first, make targeted changes, and verify that the website continues to work after the redesign.
