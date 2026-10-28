@@ -5,13 +5,11 @@ import {
   Mail, 
   Clock, 
   Check, 
-  Globe, 
   Compass, 
   ExternalLink, 
   Share2, 
   Copy, 
   Sparkles, 
-  UserCheck,
   Navigation,
   MessageSquare,
   ArrowUpRight
@@ -39,10 +37,6 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate }) => {
     setCopiedField(fieldName);
     setTimeout(() => setCopiedField(null), 2500);
   };
-
-  const activeCreators = (config.creators || [])
-    .filter(c => c.active)
-    .sort((a, b) => a.order - b.order);
 
   return (
     <div className="min-h-screen bg-[#fcf9f5] py-10 px-4 sm:px-6 lg:px-8 animate-fadeIn">
@@ -74,137 +68,44 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate }) => {
           </div>
         </div>
 
-        {/* 2. CREATORS SECTION (คณะผู้สร้างและพัฒนาระบบ - รูปภาพกรอบวงกลมและข้อมูลอิสระ) */}
-        <section className="space-y-6">
-          <div className="text-center max-w-3xl mx-auto space-y-2">
-            <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-[#9c7d5c]">
-              <Sparkles className="w-4 h-4 text-[#d4af37]" />
-              <span>THE ARCHITECTS & CREATIVE MINDS</span>
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-editorial font-bold text-[#463629]">
-              {config.creatorsSectionTitle}
-            </h2>
-            <p className="text-xs sm:text-sm text-[#9c7d5c] font-medium">
-              {config.creatorsSectionSubtitle}
-            </p>
-            {config.creatorsSectionDescription && (
-              <p className="text-xs text-[#6f5a45] leading-relaxed max-w-2xl mx-auto pt-1">
-                {config.creatorsSectionDescription}
-              </p>
-            )}
-          </div>
-
-          {/* Creators Cards Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 justify-center pt-4">
-            {activeCreators.map((creator) => (
-              <div
-                key={creator.id}
-                className="bg-white rounded-3xl border border-[#d7c8b2] p-7 shadow-md hover:shadow-xl transition-all duration-300 flex flex-col items-center text-center relative group hover:-translate-y-1"
-              >
-                {/* Decorative subtle ring backdrop */}
-                <div className="absolute top-6 w-36 h-36 rounded-full bg-[#fbf6ed] -z-0 group-hover:scale-105 transition-transform duration-300" />
-
-                {/* CIRCULAR IMAGE FRAME (กรอบวงกลมของผู้สร้างระบบ) */}
-                <div className="relative z-10 mb-5">
-                  <div className="w-32 h-32 sm:w-36 sm:h-36 rounded-full p-1.5 bg-gradient-to-tr from-[#9c7d5c] via-[#d4af37] to-[#e6c12f] shadow-lg ring-4 ring-[#fffdf7]">
-                    <div className="w-full h-full rounded-full overflow-hidden bg-[#2a1d13] flex items-center justify-center">
-                      <img
-                        src={creator.imageUrl || '/assets/optimized/echoes-of-siam-emblem.webp'}
-                        alt={creator.name}
-                        className="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500"
-                        onError={(e) => {
-                          // Fallback to emblem if image load fails
-                          (e.target as HTMLImageElement).src = '/assets/optimized/echoes-of-siam-emblem.webp';
-                        }}
-                      />
-                    </div>
-                  </div>
-                  {/* Verified / Role Badge */}
-                  <div className="absolute -bottom-1 -right-1 bg-[#d4af37] text-[#1c130c] p-1.5 rounded-full shadow-md border-2 border-white" title="ผู้สร้างที่ได้รับการยืนยัน">
-                    <UserCheck className="w-4 h-4" />
-                  </div>
-                </div>
-
-                {/* Creator Details */}
-                <div className="space-y-2 relative z-10 w-full flex-1 flex flex-col">
-                  <h3 className="text-xl font-bold font-editorial text-[#463629]">
-                    {creator.name}
-                  </h3>
-
-                  <div className="inline-block px-3 py-1 bg-[#f5ede0] text-[#866747] rounded-full text-xs font-semibold tracking-wide border border-[#d7c8b2]/60 mx-auto">
-                    {creator.role}
-                  </div>
-
-                  {creator.affiliation && (
-                    <p className="text-xs text-[#9c7d5c] font-medium">
-                      {creator.affiliation}
-                    </p>
-                  )}
-
-                  {creator.bio && (
-                    <p className="text-xs text-[#6f5a45] leading-relaxed pt-2 pb-3 px-2 flex-1">
-                      {creator.bio}
-                    </p>
-                  )}
-
-                  {/* Contact / Social links */}
-                  <div className="pt-4 border-t border-[#ece4d4] flex flex-wrap items-center justify-center gap-2 mt-auto">
-                    {creator.email && (
-                      <a
-                        href={`mailto:${creator.email}`}
-                        className="px-3 py-1.5 bg-[#fbf6ed] hover:bg-[#9c7d5c] hover:text-white text-[#6f5a45] rounded-xl text-xs font-medium border border-[#d7c8b2] transition-colors flex items-center gap-1.5"
-                        title={creator.email}
-                      >
-                        <Mail className="w-3.5 h-3.5" />
-                        <span>อีเมล</span>
-                      </a>
-                    )}
-
-                    {creator.phone && (
-                      <a
-                        href={`tel:${creator.phone}`}
-                        className="px-3 py-1.5 bg-[#fbf6ed] hover:bg-[#9c7d5c] hover:text-white text-[#6f5a45] rounded-xl text-xs font-medium border border-[#d7c8b2] transition-colors flex items-center gap-1.5"
-                      >
-                        <Phone className="w-3.5 h-3.5" />
-                        <span>โทร</span>
-                      </a>
-                    )}
-
-                    {creator.websiteUrl && (
-                      <a
-                        href={creator.websiteUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-3 py-1.5 bg-[#fbf6ed] hover:bg-[#9c7d5c] hover:text-white text-[#6f5a45] rounded-xl text-xs font-medium border border-[#d7c8b2] transition-colors flex items-center gap-1.5"
-                      >
-                        <Globe className="w-3.5 h-3.5" />
-                        <span>เว็บไซต์</span>
-                      </a>
-                    )}
-
-                    {creator.socialLinks?.github && (
-                      <a
-                        href={creator.socialLinks.github}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="p-1.5 bg-[#fbf6ed] hover:bg-[#463629] hover:text-white text-[#6f5a45] rounded-xl border border-[#d7c8b2] transition-colors"
-                        title="GitHub Profile"
-                      >
-                        <ExternalLink className="w-3.5 h-3.5" />
-                      </a>
-                    )}
-                  </div>
-                </div>
-
+        {/* 2. DEVELOPMENT TEAM */}
+        <section className="relative overflow-hidden rounded-3xl border border-[#d7c8b2] bg-white p-6 shadow-md sm:p-9">
+          <div className="absolute -right-16 -top-20 h-56 w-56 rounded-full bg-[#d4af37]/10 blur-3xl" />
+          <div className="relative grid gap-6 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.7fr)] lg:items-center">
+            <div className="space-y-3">
+              <div className="inline-flex items-center gap-2 rounded-full border border-[#d7c8b2] bg-[#fbf6ed] px-3 py-1.5 text-xs font-semibold tracking-wide text-[#866747]">
+                <Sparkles className="h-4 w-4 text-[#c69a2b]" />
+                <span>DEVELOPMENT TEAM</span>
               </div>
-            ))}
+              <h2 className="font-editorial text-2xl font-bold text-[#463629] sm:text-3xl">
+                ทีมผู้พัฒนา
+              </h2>
+              <p className="text-sm font-medium text-[#9c7d5c]">
+                สาขาวิชาสารสนเทศศึกษา · รุ่นที่ 69
+              </p>
+            </div>
+            <div className="space-y-4 border-t border-[#ece4d4] pt-5 text-sm leading-7 text-[#6f5a45] lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0">
+              <p>
+                เว็บไซต์ <strong className="font-semibold text-[#463629]">Echoes of Siam – สยามเล่าขาน: ภูมิปัญญาไทยในพิพิธภัณฑ์</strong> พัฒนาโดยนิสิตสาขาวิชาสารสนเทศศึกษา คณะมนุษยศาสตร์และสังคมศาสตร์ มหาวิทยาลัยบูรพา รุ่นที่ 69 (รหัสนิสิตขึ้นต้นด้วย 66)
+              </p>
+              <p>
+                โดยประยุกต์ใช้ความรู้ด้านการจัดการสารสนเทศและเทคโนโลยีดิจิทัล เพื่อพัฒนาแพลตฟอร์มสำหรับรวบรวม เผยแพร่ และส่งเสริมการเข้าถึงข้อมูลพิพิธภัณฑ์และองค์ความรู้ภูมิปัญญาไทยผ่านสื่อดิจิทัล
+              </p>
+              <div className="flex flex-wrap gap-2 pt-1">
+                {['คณะมนุษยศาสตร์และสังคมศาสตร์', 'มหาวิทยาลัยบูรพา', 'รหัสนิสิตขึ้นต้นด้วย 66'].map(item => (
+                  <span key={item} className="rounded-full bg-[#f5ede0] px-3 py-1 text-[11px] font-medium text-[#866747]">
+                    {item}
+                  </span>
+                ))}
+              </div>
+            </div>
           </div>
         </section>
 
-        {/* 3. LOCATION & CONTACT CHANNELS & FORM (สถานที่ ช่องทางติดต่อ และแบบฟอร์ม) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start pt-6">
+        {/* 3. LOCATION, CONTACT CHANNELS & FEEDBACK FORM */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch pt-6">
 
-          {/* Left Column (7 cols): Location & Direct Channels */}
+          {/* Location & direct channels */}
           <div className="lg:col-span-7 space-y-6">
 
             {/* Location Card */}
@@ -350,46 +251,45 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate }) => {
 
           </div>
 
-        </div>
-
-        <section className="overflow-hidden rounded-3xl border border-[#d7c8b2] bg-white shadow-md">
-          <div className="border-b border-[#ece4d4] bg-gradient-to-r from-[#2a1d13] to-[#46301d] px-6 py-7 text-white sm:px-8">
-            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-[#d4af37]/40 bg-[#d4af37]/15 px-3 py-1.5 text-xs font-semibold tracking-wide text-[#f3dfb2]">
-              <MessageSquare className="h-4 w-4 text-[#e6c12f]" />
-              <span>ร่วมพัฒนา Echoes of Siam</span>
+          <section className="flex flex-col overflow-hidden rounded-3xl border border-[#d7c8b2] bg-white shadow-md lg:col-span-5">
+            <div className="border-b border-[#ece4d4] bg-gradient-to-r from-[#2a1d13] to-[#46301d] px-5 py-5 text-white sm:px-6">
+              <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-[#d4af37]/40 bg-[#d4af37]/15 px-3 py-1.5 text-xs font-semibold tracking-wide text-[#f3dfb2]">
+                <MessageSquare className="h-4 w-4 text-[#e6c12f]" />
+                <span>ร่วมพัฒนา Echoes of Siam</span>
+              </div>
+              <h2 className="font-editorial text-xl font-bold text-[#fffdf7] sm:text-2xl">
+                ประเมินเว็บไซต์และส่งข้อเสนอแนะ
+              </h2>
+              <p className="mt-2 text-xs leading-relaxed text-[#e5d6c3]">
+                ร่วมแบ่งปันความคิดเห็นเพื่อช่วยพัฒนาเว็บไซต์
+              </p>
             </div>
-            <h2 className="font-editorial text-2xl font-bold text-[#fffdf7] sm:text-3xl">
-              ประเมินเว็บไซต์และส่งข้อเสนอแนะ
-            </h2>
-            <p className="mt-2 max-w-3xl text-sm leading-relaxed text-[#e5d6c3]">
-              แบบประเมินความพึงพอใจและข้อเสนอแนะจะแสดงด้านล่างนี้ สามารถกรอกและส่งได้จากหน้าเว็บไซต์โดยตรง
-            </p>
-          </div>
-          <div className="bg-[#fcf9f5] p-2 sm:p-4">
-            <iframe
-              src="https://docs.google.com/forms/d/e/1FAIpQLSfpaHk-Io_FU-mifG1T9x3jiViuC1d3OyP0qD3-qYZnIlcZ5g/viewform?embedded=true"
-              title="แบบประเมินเว็บไซต์ Echoes of Siam"
-              className="h-[1500px] w-full rounded-2xl border-0 bg-white sm:h-[1350px]"
-              loading="lazy"
-              referrerPolicy="strict-origin-when-cross-origin"
-            >
-              กำลังโหลดแบบประเมิน...
-            </iframe>
-          </div>
-          <div className="border-t border-[#ece4d4] px-6 py-4 text-center text-xs text-[#6f5a45]">
-            หากไม่สามารถแสดงแบบฟอร์มได้{' '}
-            <a
-              href="https://forms.gle/taYfrMHUsiL8fB1J6"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-semibold text-[#7a5230] underline underline-offset-2 hover:text-[#382415]"
-            >
-              เปิดแบบประเมินในแท็บใหม่
-              <ArrowUpRight className="ml-1 inline h-3.5 w-3.5" />
-            </a>
-          </div>
-        </section>
+            <div className="flex-1 bg-[#fcf9f5] p-2 sm:p-3">
+              <iframe
+                src="https://docs.google.com/forms/d/e/1FAIpQLSfpaHk-Io_FU-mifG1T9x3jiViuC1d3OyP0qD3-qYZnIlcZ5g/viewform?embedded=true"
+                title="แบบประเมินเว็บไซต์ Echoes of Siam"
+                className="h-[850px] w-full rounded-2xl border-0 bg-white lg:h-[760px]"
+                loading="lazy"
+                referrerPolicy="strict-origin-when-cross-origin"
+              >
+                กำลังโหลดแบบประเมิน...
+              </iframe>
+            </div>
+            <div className="border-t border-[#ece4d4] px-4 py-3 text-center text-xs text-[#6f5a45]">
+              หากไม่สามารถแสดงแบบฟอร์มได้{' '}
+              <a
+                href="https://forms.gle/taYfrMHUsiL8fB1J6"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold text-[#7a5230] underline underline-offset-2 hover:text-[#382415]"
+              >
+                เปิดแบบประเมินในแท็บใหม่
+                <ArrowUpRight className="ml-1 inline h-3.5 w-3.5" />
+              </a>
+            </div>
+          </section>
 
+        </div>
       </div>
     </div>
   );
