@@ -6,7 +6,7 @@ interface AuthContextType {
   isAdmin: boolean;
   adminEmail: string | null;
   isFirebaseActive: boolean;
-  loginWithFirebase: (email: string, pass: string) => Promise<void>;
+  loginWithFirebase: (pass: string) => Promise<void>;
   logout: () => Promise<void>;
   authError: string | null;
 }
@@ -21,6 +21,7 @@ const AuthContext = createContext<AuthContextType>({
 });
 
 const DEMO_ADMIN_KEY = 'museum_atlas_demo_admin_active';
+const ADMIN_LOGIN_EMAIL = 'admin@gmail.com';
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isAdmin, setIsAdmin] = useState(false);
@@ -48,14 +49,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => unsubscribe();
   }, []);
 
-  const loginWithFirebase = async (email: string, pass: string) => {
+  const loginWithFirebase = async (pass: string) => {
     setAuthError(null);
     if (!isConfigured || !auth) {
       throw new Error('ยังไม่ได้ตั้งค่า Firebase Authentication กรุณาตรวจสอบ firebase-applet-config.json');
     }
 
     try {
-      const credential = await signInWithEmailAndPassword(auth, email, pass);
+      const credential = await signInWithEmailAndPassword(auth, ADMIN_LOGIN_EMAIL, pass);
       const signedInEmail = credential.user.email?.trim();
       const normalizedEmail = signedInEmail?.toLowerCase();
       if (signedInEmail && (

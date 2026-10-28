@@ -82,5 +82,5 @@ npm run build
 2. เปิดใช้งาน **Cloud Firestore** และ **Firebase Authentication** (เลือกวิธี Email/Password)
 3. กำหนดค่าจาก Web App ใน Firebase Console ลงใน `firebase-applet-config.json` ซึ่งเป็นไฟล์ที่แอปใช้เชื่อมต่อ Firebase
 4. เพิ่มบัญชีผู้ดูแลจริงใน **Authentication → Users** และตั้งรหัสผ่านจาก Firebase Console หรือส่งลิงก์รีเซ็ตรหัสผ่านให้ผู้ดูแล ห้ามเก็บรหัสผ่านจริงไว้ใน source code หรือเอกสาร
-5. ตรวจสอบว่าอีเมลของบัญชีอยู่ในรายการผู้ดูแลที่อนุญาตใน `src/context/AuthContext.tsx`
+5. หน้าเข้าสู่ระบบแอดมินกรอกเฉพาะรหัสผ่าน โดยระบบใช้บัญชี `admin@gmail.com` ใน Firebase Authentication (ตั้งรหัสผ่านของบัญชีนี้ใน Firebase Console)
 6. ปรับใช้กฎความปลอดภัย `firestore.rules` และดัชนี `firestore.indexes.json` ก่อนเปิดใช้งานการบันทึกข้อมูลจากผู้ดูแล โดยระบบใช้คอลเลกชัน `museums`, `subjects`, `banners`, `bloom_presets`, `kg_images`, `site_configs`, `audit_logs`, `trash` และ `user_inquiries`

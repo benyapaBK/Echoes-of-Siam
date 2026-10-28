@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Shield, Lock, Mail, ArrowLeft, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Shield, Lock, ArrowLeft, CheckCircle2, AlertCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 interface LoginProps {
@@ -8,7 +8,6 @@ interface LoginProps {
 
 export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
   const { loginWithFirebase, isFirebaseActive, isAdmin, adminEmail } = useAuth();
-  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -49,7 +48,7 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
     setErrorMsg(null);
 
     try {
-      await loginWithFirebase(email, password);
+      await loginWithFirebase(password);
       onNavigate('admin');
     } catch (err: unknown) {
       const code = err && typeof err === 'object' && 'code' in err && typeof err.code === 'string'
@@ -57,7 +56,7 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
         : '';
       const message = err instanceof Error ? err.message : '';
       if (code === 'auth/invalid-credential') {
-        setErrorMsg('อีเมลหรือรหัสผ่านไม่ถูกต้อง หรือไม่พบบัญชีนี้ใน Firebase Authentication โปรดตรวจสอบบัญชีและรีเซ็ตรหัสผ่านใน Firebase Console');
+        setErrorMsg('รหัสผ่านไม่ถูกต้อง กรุณาลองอีกครั้ง');
       } else if (code === 'auth/operation-not-allowed') {
         setErrorMsg('ยังไม่ได้เปิดวิธีลงชื่อเข้าใช้ Email/Password ใน Firebase Authentication');
       } else if (code === 'auth/too-many-requests') {
@@ -115,25 +114,7 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1">
             <label className="block text-xs font-medium text-[#463629]">
-              อีเมลผู้ดูแลระบบ (Admin Email)
-            </label>
-            <div className="relative">
-              <Mail className="w-4 h-4 text-[#9c7d5c] absolute left-3 top-1/2 -translate-y-1/2" />
-              <input
-                type="email"
-                required
-                autoComplete="username"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                placeholder="อีเมลบัญชีผู้ดูแล"
-                className="w-full pl-9 pr-3 py-2 text-xs text-[#463629] bg-[#fffdf7] border border-[#d7c8b2] rounded-lg focus:outline-none focus:border-[#9c7d5c]"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-1">
-            <label className="block text-xs font-medium text-[#463629]">
-              รหัสผ่าน (Password)
+              รหัสผ่านผู้ดูแลระบบ (Admin Password)
             </label>
             <div className="relative">
               <Lock className="w-4 h-4 text-[#9c7d5c] absolute left-3 top-1/2 -translate-y-1/2" />
@@ -141,6 +122,7 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
                 type="password"
                 required
                 autoComplete="current-password"
+                autoFocus
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 placeholder="••••••••"
