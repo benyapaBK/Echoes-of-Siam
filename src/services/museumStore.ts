@@ -24,7 +24,7 @@ import type {
   CreatorProfile,
   ContactPageConfig
 } from '../types/museum';
-import { db, doc, setDoc, deleteDoc, getDocs, collection } from './firebase';
+import { db, doc, setDoc, deleteDoc, getDoc, getDocs, collection, query, where } from './firebase';
 
 export const getMascotSizePixels = (size: MascotConfig['size']): number => {
   if (typeof size === 'number' && Number.isFinite(size)) {
@@ -52,13 +52,75 @@ const STORAGE_KEYS = {
   CONTACT_PAGE_CONFIG: 'museum_atlas_contact_page_config_v1'
 };
 
+const OPTIMIZED_ASSETS: Record<string, string> = {
+  '/assets/aistudio/Echoes_of_Siam_Heritage_Emblem_b1d3a246.png': '/assets/optimized/echoes-of-siam-emblem.webp',
+  '/assets/aistudio/bloom-visualisation-5_2bf66740.png': '/assets/optimized/knowledge-graph.webp',
+  '/assets/images/echoes_of_siam_banner.png': '/assets/optimized/heritage-banner.webp',
+  '/assets/images/siam_cultural_archive_1792474260752.jpg': '/assets/optimized/siam-cultural-archive.webp',
+  '/assets/images/siam_museum_heritage_hall_1792473891438.jpg': '/assets/optimized/museum-heritage-hall.webp',
+  '/assets/images/thai_crafts_pottery_artifacts_1792473892186.jpg': '/assets/optimized/thai-crafts-artifacts.webp'
+};
+
+export const THAI_PROVINCES = [
+  'กรุงเทพมหานคร', 'กระบี่', 'กาญจนบุรี', 'กาฬสินธุ์', 'กำแพงเพชร', 'ขอนแก่น',
+  'จันทบุรี', 'ฉะเชิงเทรา', 'ชลบุรี', 'ชัยนาท', 'ชัยภูมิ', 'ชุมพร', 'เชียงราย',
+  'เชียงใหม่', 'ตรัง', 'ตราด', 'ตาก', 'นครนายก', 'นครปฐม', 'นครพนม',
+  'นครราชสีมา', 'นครศรีธรรมราช', 'นครสวรรค์', 'นนทบุรี', 'นราธิวาส', 'น่าน',
+  'บึงกาฬ', 'บุรีรัมย์', 'ปทุมธานี', 'ประจวบคีรีขันธ์', 'ปราจีนบุรี', 'ปัตตานี',
+  'พระนครศรีอยุธยา', 'พะเยา', 'พังงา', 'พัทลุง', 'พิจิตร', 'พิษณุโลก', 'เพชรบุรี',
+  'เพชรบูรณ์', 'แพร่', 'ภูเก็ต', 'มหาสารคาม', 'มุกดาหาร', 'แม่ฮ่องสอน', 'ยโสธร',
+  'ยะลา', 'ร้อยเอ็ด', 'ระนอง', 'ระยอง', 'ราชบุรี', 'ลพบุรี', 'ลำปาง', 'ลำพูน',
+  'เลย', 'ศรีสะเกษ', 'สกลนคร', 'สงขลา', 'สตูล', 'สมุทรปราการ', 'สมุทรสงคราม',
+  'สมุทรสาคร', 'สระแก้ว', 'สระบุรี', 'สิงห์บุรี', 'สุโขทัย', 'สุพรรณบุรี',
+  'สุราษฎร์ธานี', 'สุรินทร์', 'หนองคาย', 'หนองบัวลำภู', 'อ่างทอง', 'อำนาจเจริญ',
+  'อุดรธานี', 'อุตรดิตถ์', 'อุทัยธานี', 'อุบลราชธานี'
+];
+
+const THAI_PROVINCE_SET = new Set(THAI_PROVINCES);
+
+const normalizeProvinceName = (value: string): string | undefined => {
+  const cleaned = value.normalize('NFC').trim().replace(/\s+/g, ' ');
+  const withoutPrefix = cleaned.replace(/^จังหวัด\s*/, '').replace(/^จ\.\s*/, '');
+  const canonical = ({
+    'กรุงเทพฯ': 'กรุงเทพมหานคร',
+    'กรุงเทพ': 'กรุงเทพมหานคร',
+    'กทม.': 'กรุงเทพมหานคร'
+  } as Record<string, string>)[withoutPrefix] || withoutPrefix;
+  return THAI_PROVINCE_SET.has(canonical) ? canonical : undefined;
+};
+
+const extractCanonicalProvinces = (value: string): string[] =>
+  value.split(/\s*(?:\/|,|;|และ)\s*/u)
+    .map(normalizeProvinceName)
+    .filter((province): province is string => Boolean(province));
+
+const normalizeMuseumProvinces = (museum: Museum): Museum => {
+  const sourceProvince = typeof museum.province === 'string' ? museum.province.trim() : '';
+  const primaryProvinces = extractCanonicalProvinces(sourceProvince);
+  const listedProvinces = Array.isArray(museum.provinces)
+    ? museum.provinces.flatMap(province => extractCanonicalProvinces(province))
+    : [];
+  const canonicalProvinces = Array.from(new Set([...primaryProvinces, ...listedProvinces]));
+  const province = primaryProvinces[0] || listedProvinces[0] || sourceProvince || 'ไม่ระบุ';
+  const shouldKeepList = Array.isArray(museum.provinces) || primaryProvinces.length > 1;
+
+  return {
+    ...museum,
+    province,
+    ...(shouldKeepList ? { provinces: canonicalProvinces } : {})
+  };
+};
+
+const optimizeAssetUrl = (url?: string): string | undefined =>
+  url ? OPTIMIZED_ASSETS[url] || url.replace('/src/assets/images/', '/assets/images/') : url;
+
 const DEFAULT_BANNERS: BannerSlide[] = [
   {
     id: 'banner_video_universe',
     title: 'Echoes of Siam',
     subtitle: 'ยินดีต้อนรับสู่ สยามเล่าขาน — ประตูสู่คลังมรดกวัฒนธรรมและแผนผังกราฟความรู้ภูมิปัญญาไทย 1,574 พิพิธภัณฑ์ทั่วประเทศ',
     tag: 'ยินดีต้อนรับสู่หน้าแรก (Welcome to Echoes of Siam)',
-    imageUrl: '/assets/images/siam_cultural_archive_1792474260752.jpg',
+    imageUrl: '/assets/optimized/siam-cultural-archive.webp',
     mediaType: 'video',
     isGenerativeLivingMemory: true,
     ctaText: '',
@@ -74,7 +136,7 @@ const DEFAULT_BANNERS: BannerSlide[] = [
     title: 'Echoes of Siam',
     subtitle: 'สยามเล่าขาน: ภูมิปัญญาไทยในพิพิธภัณฑ์ — หน้าปกดิจิทัลอาร์ไคฟ์เชื่อมโยงรากเหง้าประวัติศาสตร์ วัฒนธรรม และภูมิปัญญาช่างสยาม 1,574 แห่งทั่วประเทศ',
     tag: 'ตราสัญลักษณ์และหน้าปกมรดกสยาม (Official Emblem & Heritage Cover)',
-    imageUrl: '/assets/images/echoes_of_siam_banner.png',
+    imageUrl: '/assets/optimized/heritage-banner.webp',
     ctaText: 'เข้าสู่คลังพิพิธภัณฑ์ 1,574 แห่ง',
     ctaLink: 'museums',
     secondaryCtaText: 'เปิดกราฟความรู้',
@@ -88,7 +150,7 @@ const DEFAULT_BANNERS: BannerSlide[] = [
     title: 'ยินดีต้อนรับสู่ Echoes of Siam',
     subtitle: 'สยามเล่าขาน: ภูมิปัญญาไทยในพิพิธภัณฑ์ — รวบรวมและจัดจำแนกข้อมูลพิพิธภัณฑ์ 1,574 แห่งทั่ว 77 จังหวัด เชื่อมโยงรากเหง้าภูมิปัญญาไทยสู่โลกยุคใหม่',
     tag: 'แบนเนอร์ต้อนรับ (Welcome to Echoes of Siam)',
-    imageUrl: '/assets/images/siam_museum_heritage_hall_1792473891438.jpg',
+    imageUrl: '/assets/optimized/museum-heritage-hall.webp',
     ctaText: 'สำรวจสารบัญพิพิธภัณฑ์',
     ctaLink: 'museums',
     secondaryCtaText: 'เกี่ยวกับโครงการ',
@@ -102,7 +164,7 @@ const DEFAULT_BANNERS: BannerSlide[] = [
     title: 'สยามเล่าขาน: สถาปัตยกรรมองค์ความรู้และกราฟความรู้',
     subtitle: 'ค้นพบมิติความสัมพันธ์ของ 2,460 หัวเรื่องวัฒนธรรม ประวัติศาสตร์ท้องถิ่น และภูมิปัญญาช่างฝีมือ ผ่านโครงสร้างแผนผังองค์ความรู้เชิงความหมายระดับสถาบัน',
     tag: 'เกี่ยวกับเว็บไซต์ (About Platform & Graph)',
-    imageUrl: '/assets/images/siam_cultural_archive_1792474260752.jpg',
+    imageUrl: '/assets/optimized/siam-cultural-archive.webp',
     ctaText: 'เปิดกราฟความรู้',
     ctaLink: 'graph',
     secondaryCtaText: 'สำรวจดัชนีหัวเรื่อง',
@@ -116,7 +178,7 @@ const DEFAULT_BANNERS: BannerSlide[] = [
     title: 'ตัวอย่างคลังข้อมูล: จากโบราณคดีบ้านเชียง สู่งานช่างหลวงและวิถีชน',
     subtitle: 'ตัวอย่างคลังข้อมูลและศิลปวัตถุล้ำค่า: เจาะลึกมรดกเครื่องปั้นดินเผา ภูมิปัญญาผ้าทอพื้นถิ่น ชุมชนชาติพันธุ์ และคลังโบราณวัตถุจัดแสดงกว่า 391 ชุมชนทั่วประเทศ',
     tag: 'ตัวอย่างข้อมูลและศิลปวัตถุจัดแสดง (Exhibition Showcase)',
-    imageUrl: '/assets/images/thai_crafts_pottery_artifacts_1792473892186.jpg',
+    imageUrl: '/assets/optimized/thai-crafts-artifacts.webp',
     ctaText: 'สำรวจหัวเรื่องภูมิปัญญา',
     ctaLink: 'subjects',
     secondaryCtaText: 'ดูสถิติภาพรวมข้อมูล',
@@ -239,7 +301,7 @@ const DEFAULT_KG_IMAGES: KnowledgeGraphImage[] = [
     id: 'kg_img_universe_main',
     title: 'มหาจักรวาลกราฟความรู้สยาม: The Living Memory Universe of Siam',
     subtitle: 'แผนผังองค์ความรู้เชิงความหมาย (Neo4j Bloom Knowledge Graph) เชื่อมโยง 1,574 พิพิธภัณฑ์ และ 2,460 หัวเรื่องวัฒนธรรม',
-    imageUrl: '/assets/aistudio/bloom-visualisation-5_2bf66740.png',
+    imageUrl: '/assets/optimized/knowledge-graph.webp',
     description: 'แผนผังกราฟความรู้มรดกวัฒนธรรมสยาม (Echoes of Siam Knowledge Graph) จากการประมวลผลและการแสดงผลโครงข่ายความสัมพันธ์ด้วย Neo4j Bloom เชื่อมโยงรากเหง้าภูมิปัญญาของชาติจาก 1,574 พิพิธภัณฑ์ทั่ว 77 จังหวัดเข้ากับ 2,460 หัวเรื่องทางวัฒนธรรม โครงสร้างแผนผังนี้จำลองมิติความสัมพันธ์แบบโครงข่ายประสาทแห่งความทรงจำ (Living Memory Universe) ที่เปิดโอกาสให้สำรวจความเชื่อมโยงข้ามยุคสมัย ข้ามสายสกุลช่าง และข้ามกลุ่มชาติพันธุ์อย่างอิสระ',
     formattedText: `### 🏛️ เสาหลักโครงสร้าง ๔ มิติแห่งสยาม:
 1. **มิติโบราณคดีและก่อนประวัติศาสตร์ (Archaeological Foundation):** สายสัมพันธ์จากยุคก่อนประวัติศาสตร์บ้านเชียง ลพบุรี สุโขทัย สู่รัตนโกสินทร์
@@ -457,7 +519,7 @@ export const DEFAULT_LOCAL_LIVING_TAXONOMY: LocalLivingTaxonomyConfig = {
 export const DEFAULT_HEADER_CONFIG: HeaderConfig = {
   brandTitle: 'Echoes of Siam',
   brandSubtitle: 'สยามเล่าขาน: ภูมิปัญญาไทยในพิพิธภัณฑ์',
-  brandEmblemUrl: '/assets/aistudio/Echoes_of_Siam_Heritage_Emblem_b1d3a246.png',
+  brandEmblemUrl: '/assets/optimized/echoes-of-siam-emblem.webp',
   searchButtonLabel: 'ค้นหา',
   searchShortcut: '⌘K',
   helpButtonLabel: 'ช่วยเหลือ',
@@ -663,7 +725,7 @@ const DEFAULT_CONTACT_PAGE_CONFIG: ContactPageConfig = {
       role: 'ผู้สร้างและหัวหน้านักพัฒนาระบบ (Lead Creator & System Architect)',
       affiliation: 'คณะทำงานเทคโนโลยีสารสนเทศมรดกวัฒนธรรมดิจิทัล',
       bio: 'ผู้ออกแบบสถาปัตยกรรมระบบกราฟความรู้ (Knowledge Graph Architecture), โครงสร้างการเชื่อมโยงข้อมูล 1,574 พิพิธภัณฑ์ และส่วนต่อประสานผู้ใช้สยามเล่าขาน เพื่อเปิดโลกทัศน์มรดกไทยสู่อนาคต',
-      imageUrl: '/assets/aistudio/Echoes_of_Siam_Heritage_Emblem_b1d3a246.png',
+      imageUrl: '/assets/optimized/echoes-of-siam-emblem.webp',
       email: 'Benyapabaibuaw@gmail.com',
       phone: '081-234-5678',
       websiteUrl: 'https://github.com',
@@ -699,6 +761,7 @@ class MuseumStore {
   private contactConfig: ContactPageConfig = DEFAULT_CONTACT_PAGE_CONFIG;
   private settings: SiteSettings = DEFAULT_SETTINGS;
   private listeners: Set<() => void> = new Set();
+  private syncedCollectionSnapshots = new Map<string, Map<string, string>>();
 
   constructor() {
     this.initStore();
@@ -709,10 +772,12 @@ class MuseumStore {
       // 1. Load museums
       const savedMuseums = localStorage.getItem(STORAGE_KEYS.MUSEUMS_OVERRIDE);
       if (savedMuseums) {
-        this.museums = JSON.parse(savedMuseums);
+        this.museums = (JSON.parse(savedMuseums) as Museum[]).map(normalizeMuseumProvinces);
+        localStorage.setItem(STORAGE_KEYS.MUSEUMS_OVERRIDE, JSON.stringify(this.museums));
       } else {
-        this.museums = (initialMuseumsRaw as Museum[]);
+        this.museums = (initialMuseumsRaw as Museum[]).map(normalizeMuseumProvinces);
       }
+      this.localLivingMuseums = (initialLocalLivingMuseumsRaw as Museum[]).map(normalizeMuseumProvinces);
 
       // 2. Load subjects
       const savedSubjects = localStorage.getItem(STORAGE_KEYS.SUBJECTS_OVERRIDE);
@@ -725,7 +790,8 @@ class MuseumStore {
       // 3. Load trash
       const savedTrash = localStorage.getItem(STORAGE_KEYS.TRASH);
       if (savedTrash) {
-        this.trash = JSON.parse(savedTrash);
+        this.trash = (JSON.parse(savedTrash) as Museum[]).map(normalizeMuseumProvinces);
+        localStorage.setItem(STORAGE_KEYS.TRASH, JSON.stringify(this.trash));
       }
 
       // 4. Load audit logs
@@ -759,7 +825,7 @@ class MuseumStore {
         if (Array.isArray(parsed) && parsed.length >= 3) {
           const loaded = parsed.map((b: BannerSlide) => ({
             ...b,
-            imageUrl: b.imageUrl?.replace('/src/assets/images/', '/assets/images/') || b.imageUrl
+            imageUrl: optimizeAssetUrl(b.imageUrl) || b.imageUrl
           }));
           // Ensure the official video banner and Echoes of Siam banner are updated and included
           let finalBanners = loaded.map((b: BannerSlide) => {
@@ -830,11 +896,11 @@ class MuseumStore {
               if (img.id === 'kg_img_universe_main' && (!img.imageUrl || img.imageUrl.includes('siam_cultural_archive'))) {
                 return {
                   ...img,
-                  imageUrl: '/assets/aistudio/bloom-visualisation-5_2bf66740.png',
+                  imageUrl: '/assets/optimized/knowledge-graph.webp',
                   credit: 'ศูนย์มานุษยวิทยาสิรินธร (องค์การมหาชน) & Echoes of Siam Research Engine (Neo4j Bloom Visualization)'
                 };
               }
-              return img;
+              return { ...img, imageUrl: optimizeAssetUrl(img.imageUrl) || img.imageUrl };
             });
             if (!this.kgImages.some(img => img.id === 'kg_img_universe_constellation')) {
               this.kgImages.push(DEFAULT_KG_IMAGES[1]);
@@ -920,7 +986,11 @@ class MuseumStore {
       if (savedHeader) {
         try {
           const parsed = JSON.parse(savedHeader);
-          this.headerConfig = { ...DEFAULT_HEADER_CONFIG, ...parsed };
+          this.headerConfig = {
+            ...DEFAULT_HEADER_CONFIG,
+            ...parsed,
+            brandEmblemUrl: optimizeAssetUrl(parsed.brandEmblemUrl) || DEFAULT_HEADER_CONFIG.brandEmblemUrl
+          };
         } catch {
           this.headerConfig = DEFAULT_HEADER_CONFIG;
         }
@@ -933,7 +1003,14 @@ class MuseumStore {
       if (savedContact) {
         try {
           const parsed = JSON.parse(savedContact);
-          this.contactConfig = { ...DEFAULT_CONTACT_PAGE_CONFIG, ...parsed };
+          this.contactConfig = {
+            ...DEFAULT_CONTACT_PAGE_CONFIG,
+            ...parsed,
+            creators: (parsed.creators || DEFAULT_CONTACT_PAGE_CONFIG.creators).map((creator: CreatorProfile) => ({
+              ...creator,
+              imageUrl: optimizeAssetUrl(creator.imageUrl) || creator.imageUrl
+            }))
+          };
         } catch {
           this.contactConfig = DEFAULT_CONTACT_PAGE_CONFIG;
         }
@@ -941,11 +1018,28 @@ class MuseumStore {
         this.contactConfig = DEFAULT_CONTACT_PAGE_CONFIG;
       }
 
-      // 14. Background Firestore Sync
+      localStorage.setItem(STORAGE_KEYS.BANNERS, JSON.stringify(this.banners));
+      localStorage.setItem(STORAGE_KEYS.KG_IMAGES, JSON.stringify(this.kgImages));
+      localStorage.setItem(STORAGE_KEYS.MASCOT_CONFIG, JSON.stringify(this.mascotConfig));
+      localStorage.setItem(STORAGE_KEYS.LOCAL_LIVING_TAXONOMY, JSON.stringify(this.localLivingTaxonomy));
+      localStorage.setItem(STORAGE_KEYS.HEADER_NAV_CONFIG, JSON.stringify(this.headerConfig));
+      localStorage.setItem(STORAGE_KEYS.CONTACT_PAGE_CONFIG, JSON.stringify(this.contactConfig));
+      localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(this.settings));
+      this.snapshotCollection('museums', this.museums);
+      this.snapshotCollection('subjects', this.subjects);
+      this.snapshotCollection('trash', this.trash);
+      this.snapshotCollection('audit_logs', this.auditLogs);
+      this.snapshotCollection('banners', this.banners);
+      this.snapshotCollection('bloom_presets', this.bloomPresets);
+      this.snapshotCollection('kg_images', this.kgImages);
+      this.snapshotCollection('user_inquiries', this.userInquiries);
+
+      // Sync saved edits across devices.
       this.initFirestoreSync();
     } catch (e) {
       console.error('Error initializing MuseumStore:', e);
-      this.museums = (initialMuseumsRaw as Museum[]);
+      this.museums = (initialMuseumsRaw as Museum[]).map(normalizeMuseumProvinces);
+      this.localLivingMuseums = (initialLocalLivingMuseumsRaw as Museum[]).map(normalizeMuseumProvinces);
       this.subjects = (initialSubjectsRaw as SubjectItem[]);
       this.banners = DEFAULT_BANNERS;
       this.bloomPresets = DEFAULT_BLOOM_PRESETS;
@@ -959,26 +1053,99 @@ class MuseumStore {
 
   private async initFirestoreSync() {
     if (!db) return;
+    const firestoreDb = db;
     try {
-      const presetsSnap = await getDocs(collection(db, 'bloom_presets'));
-      if (!presetsSnap.empty) {
-        const cloudPresets: GraphBloomPreset[] = [];
-        presetsSnap.forEach(d => {
-          cloudPresets.push(d.data() as GraphBloomPreset);
-        });
-        if (cloudPresets.length > 0) {
-          this.bloomPresets = cloudPresets.sort((a, b) => a.order - b.order);
-          localStorage.setItem(STORAGE_KEYS.BLOOM_PRESETS, JSON.stringify(this.bloomPresets));
-          this.notify();
-        }
-      } else {
-        // Seed default bloom presets to cloud
-        for (const preset of this.bloomPresets) {
-          await setDoc(doc(db, 'bloom_presets', preset.id), preset);
-        }
+      const [bannerSnapshot, presetSnapshot, imageSnapshot, museumSnapshot, archivedSnapshot, subjectSnapshot] = await Promise.all([
+        getDocs(collection(firestoreDb, 'banners')),
+        getDocs(collection(firestoreDb, 'bloom_presets')),
+        getDocs(collection(firestoreDb, 'kg_images')),
+        getDocs(query(collection(firestoreDb, 'museums'), where('status', '==', 'published'))),
+        getDocs(query(collection(firestoreDb, 'museums'), where('status', '==', 'archived'))),
+        getDocs(collection(firestoreDb, 'subjects'))
+      ]);
+
+      if (!bannerSnapshot.empty) {
+        this.banners = this.mergeById(this.banners, bannerSnapshot.docs.map(item => item.data() as BannerSlide))
+          .sort((a, b) => a.order - b.order);
+        localStorage.setItem(STORAGE_KEYS.BANNERS, JSON.stringify(this.banners));
       }
+      if (!presetSnapshot.empty) {
+        this.bloomPresets = this.mergeById(this.bloomPresets, presetSnapshot.docs.map(item => item.data() as GraphBloomPreset))
+          .sort((a, b) => a.order - b.order);
+        localStorage.setItem(STORAGE_KEYS.BLOOM_PRESETS, JSON.stringify(this.bloomPresets));
+      }
+      if (!imageSnapshot.empty) {
+        this.kgImages = this.mergeById(this.kgImages, imageSnapshot.docs.map(item => item.data() as KnowledgeGraphImage))
+          .sort((a, b) => a.order - b.order);
+        localStorage.setItem(STORAGE_KEYS.KG_IMAGES, JSON.stringify(this.kgImages));
+      }
+      if (!museumSnapshot.empty || !archivedSnapshot.empty) {
+        const cloudMuseums = museumSnapshot.docs.map(item => normalizeMuseumProvinces(item.data() as Museum));
+        const cloudArchives = archivedSnapshot.docs.map(item => normalizeMuseumProvinces(item.data() as Museum));
+        const archivedIds = new Set(cloudArchives.map(item => item.id));
+        const publishedIds = new Set(cloudMuseums.map(item => item.id));
+        this.museums = this.mergeById(this.museums, cloudMuseums).filter(item => !archivedIds.has(item.id));
+        this.trash = this.mergeById(this.trash.filter(item => !publishedIds.has(item.id)), cloudArchives);
+        localStorage.setItem(STORAGE_KEYS.MUSEUMS_OVERRIDE, JSON.stringify(this.museums));
+        localStorage.setItem(STORAGE_KEYS.TRASH, JSON.stringify(this.trash));
+      }
+      if (!subjectSnapshot.empty) {
+        const cloudSubjects = subjectSnapshot.docs.map(item => item.data() as SubjectItem);
+        this.subjects = this.mergeById(this.subjects, cloudSubjects);
+        localStorage.setItem(STORAGE_KEYS.SUBJECTS_OVERRIDE, JSON.stringify(this.subjects));
+      }
+
+      const applyConfig = async <T,>(id: string, apply: (data: T) => void) => {
+        const snapshot = await getDoc(doc(firestoreDb, 'site_configs', id));
+        if (snapshot.exists()) apply(snapshot.data() as T);
+      };
+      await Promise.all([
+        applyConfig<SiteSettings>('site_settings', data => { this.settings = { ...this.settings, ...data }; }),
+        applyConfig<MascotConfig>('mascot_config', data => { this.mascotConfig = { ...this.mascotConfig, ...data }; }),
+        applyConfig<LocalLivingTaxonomyConfig>('local_living_taxonomy', data => { this.localLivingTaxonomy = { ...this.localLivingTaxonomy, ...data }; }),
+        applyConfig<HeaderConfig>('header_nav_config', data => {
+          this.headerConfig = {
+            ...this.headerConfig,
+            ...data,
+            brandEmblemUrl: optimizeAssetUrl(data.brandEmblemUrl) || this.headerConfig.brandEmblemUrl
+          };
+        }),
+        applyConfig<ContactPageConfig>('contact_page_config', data => {
+          this.contactConfig = {
+            ...this.contactConfig,
+            ...data,
+            creators: (data.creators || this.contactConfig.creators).map(creator => ({
+              ...creator,
+              imageUrl: optimizeAssetUrl(creator.imageUrl) || creator.imageUrl
+            }))
+          };
+        }),
+        applyConfig<{ items: BannerSlide[] }>('banners_config', data => {
+          if (Array.isArray(data.items)) this.banners = data.items.map(item => ({
+            ...item,
+            imageUrl: optimizeAssetUrl(item.imageUrl) || item.imageUrl
+          }));
+        }),
+        applyConfig<{ items: KnowledgeGraphImage[] }>('kg_images_config', data => {
+          if (Array.isArray(data.items)) this.kgImages = data.items.map(item => ({
+            ...item,
+            imageUrl: optimizeAssetUrl(item.imageUrl) || item.imageUrl
+          }));
+        }),
+        applyConfig<{ items: GraphBloomPreset[] }>('bloom_presets_config', data => {
+          if (Array.isArray(data.items)) this.bloomPresets = data.items.sort((a, b) => a.order - b.order);
+        })
+      ]);
+
+      this.snapshotCollection('museums', this.museums);
+      this.snapshotCollection('subjects', this.subjects);
+      this.snapshotCollection('trash', this.trash);
+      this.snapshotCollection('banners', this.banners);
+      this.snapshotCollection('bloom_presets', this.bloomPresets);
+      this.snapshotCollection('kg_images', this.kgImages);
+      this.notify();
     } catch (err) {
-      console.warn('Firestore initial sync notice:', err);
+      console.error('Firestore sync failed; local data remains available:', err);
     }
   }
 
@@ -993,44 +1160,130 @@ class MuseumStore {
     this.listeners.forEach(cb => cb());
   }
 
+  private firestoreDocumentId(id: string): string {
+    return encodeURIComponent(id);
+  }
+
+  private snapshotCollection<T extends { id: string }>(collectionName: string, items: T[]) {
+    this.syncedCollectionSnapshots.set(
+      collectionName,
+      new Map(items.map(item => [item.id, JSON.stringify(item)]))
+    );
+  }
+
+  private syncFirestoreCollection<T extends { id: string }>(
+    collectionName: string,
+    items: T[],
+    preservedItems: T[] = []
+  ) {
+    const previous = this.syncedCollectionSnapshots.get(collectionName) || new Map<string, string>();
+    const currentIds = new Set(items.map(item => item.id));
+    const cloudItems = [...items, ...preservedItems.filter(item => !currentIds.has(item.id))];
+    const cloudIds = new Set(cloudItems.map(item => item.id));
+
+    cloudItems.forEach(item => {
+      const serialized = JSON.stringify(item);
+      if (previous.get(item.id) !== serialized) {
+        void this.saveCloudDocument(collectionName, this.firestoreDocumentId(item.id), item).then(saved => {
+          if (!saved) return;
+          const latest = this.syncedCollectionSnapshots.get(collectionName) || previous;
+          latest.set(item.id, serialized);
+          this.syncedCollectionSnapshots.set(collectionName, latest);
+        });
+      }
+    });
+    previous.forEach((_, id) => {
+      if (!cloudIds.has(id)) {
+        void this.deleteCloudDocument(collectionName, this.firestoreDocumentId(id)).then(deleted => {
+          if (!deleted) return;
+          const latest = this.syncedCollectionSnapshots.get(collectionName) || previous;
+          latest.delete(id);
+          this.syncedCollectionSnapshots.set(collectionName, latest);
+        });
+      }
+    });
+  }
+
+  private saveCloudDocument(collectionName: string, id: string, data: object): Promise<boolean> {
+    if (!db) return Promise.resolve(false);
+    try {
+      return setDoc(doc(db, collectionName, id), data).then(() => true).catch(error => {
+        console.error(`Failed to save ${collectionName}/${id} to Firestore:`, error);
+        return false;
+      });
+    } catch (error) {
+      console.error(`Failed to save ${collectionName}/${id} to Firestore:`, error);
+      return Promise.resolve(false);
+    }
+  }
+
+  private deleteCloudDocument(collectionName: string, id: string): Promise<boolean> {
+    if (!db) return Promise.resolve(false);
+    try {
+      return deleteDoc(doc(db, collectionName, id)).then(() => true).catch(error => {
+        console.error(`Failed to delete ${collectionName}/${id} from Firestore:`, error);
+        return false;
+      });
+    } catch (error) {
+      console.error(`Failed to delete ${collectionName}/${id} from Firestore:`, error);
+      return Promise.resolve(false);
+    }
+  }
+
+  private mergeById<T extends { id: string }>(localItems: T[], cloudItems: T[]): T[] {
+    const merged = new Map(localItems.map(item => [item.id, item]));
+    cloudItems.forEach(item => merged.set(item.id, item));
+    return Array.from(merged.values());
+  }
+
   private persistMuseums() {
     localStorage.setItem(STORAGE_KEYS.MUSEUMS_OVERRIDE, JSON.stringify(this.museums));
+    this.syncFirestoreCollection(
+      'museums',
+      this.museums,
+      this.trash.map(museum => ({ ...museum, status: 'archived' }))
+    );
     this.notify();
   }
 
   private persistSubjects() {
     localStorage.setItem(STORAGE_KEYS.SUBJECTS_OVERRIDE, JSON.stringify(this.subjects));
+    this.syncFirestoreCollection('subjects', this.subjects);
     this.notify();
   }
 
   private persistTrash() {
     localStorage.setItem(STORAGE_KEYS.TRASH, JSON.stringify(this.trash));
+    this.syncFirestoreCollection('trash', this.trash);
     this.notify();
   }
 
   private persistAudit() {
     localStorage.setItem(STORAGE_KEYS.AUDIT_LOGS, JSON.stringify(this.auditLogs));
+    const latestLog = this.auditLogs[0];
+    if (latestLog) this.saveCloudDocument('audit_logs', latestLog.id, latestLog);
     this.notify();
   }
 
   private persistSettings() {
     localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(this.settings));
+    this.saveCloudDocument('site_configs', 'site_settings', this.settings);
     this.notify();
   }
 
   private persistBanners() {
     localStorage.setItem(STORAGE_KEYS.BANNERS, JSON.stringify(this.banners));
+    localStorage.setItem(STORAGE_KEYS.BLOOM_PRESETS, JSON.stringify(this.bloomPresets));
+    this.syncFirestoreCollection('banners', this.banners);
+    this.saveCloudDocument('site_configs', 'banners_config', { items: this.banners });
     this.notify();
   }
 
   private persistBloomPresets() {
     localStorage.setItem(STORAGE_KEYS.BLOOM_PRESETS, JSON.stringify(this.bloomPresets));
+    this.syncFirestoreCollection('bloom_presets', this.bloomPresets);
+    this.saveCloudDocument('site_configs', 'bloom_presets_config', { items: this.bloomPresets });
     this.notify();
-    if (db) {
-      for (const preset of this.bloomPresets) {
-        setDoc(doc(db, 'bloom_presets', preset.id), preset).catch(() => {});
-      }
-    }
   }
 
   // --- BANNER SLIDES APIS ---
@@ -1371,6 +1624,8 @@ class MuseumStore {
   private persistKgImages() {
     try {
       localStorage.setItem(STORAGE_KEYS.KG_IMAGES, JSON.stringify(this.kgImages));
+      this.syncFirestoreCollection('kg_images', this.kgImages);
+      this.saveCloudDocument('site_configs', 'kg_images_config', { items: this.kgImages });
       this.notify();
     } catch (e) {
       console.error('Failed to persist kg images:', e);
@@ -1393,6 +1648,7 @@ class MuseumStore {
     };
     try {
       localStorage.setItem(STORAGE_KEYS.MASCOT_CONFIG, JSON.stringify(this.mascotConfig));
+      this.saveCloudDocument('site_configs', 'mascot_config', this.mascotConfig);
       this.notify();
       this.logAudit({
         action: 'UPDATE',
@@ -1419,9 +1675,7 @@ class MuseumStore {
         details: `บันทึกตำแหน่งกลางของน้องมิวมิว (X: ${position.x ?? 'auto'}, Y: ${position.y ?? 'auto'}, Bottom: ${position.bottom ?? 'auto'}, Right: ${position.right ?? 'auto'})`,
         adminEmail
       });
-      if (db) {
-        setDoc(doc(db, 'site_configs', 'mascot_config'), this.mascotConfig).catch(() => {});
-      }
+      this.saveCloudDocument('site_configs', 'mascot_config', this.mascotConfig);
     } catch (e) {
       console.error('Failed to persist mascot position:', e);
     }
@@ -1443,10 +1697,8 @@ class MuseumStore {
     this.userInquiries.unshift(newInquiry);
     try {
       localStorage.setItem(STORAGE_KEYS.USER_INQUIRIES, JSON.stringify(this.userInquiries));
+      this.syncFirestoreCollection('user_inquiries', this.userInquiries);
       this.notify();
-      if (db) {
-        setDoc(doc(db, 'user_inquiries', newInquiry.id), newInquiry).catch(() => {});
-      }
     } catch (e) {
       console.error('Failed to persist inquiry:', e);
     }
@@ -1459,6 +1711,7 @@ class MuseumStore {
     this.userInquiries[index] = { ...this.userInquiries[index], ...updates };
     try {
       localStorage.setItem(STORAGE_KEYS.USER_INQUIRIES, JSON.stringify(this.userInquiries));
+      this.syncFirestoreCollection('user_inquiries', this.userInquiries);
       this.notify();
     } catch (e) {
       console.error('Failed to update inquiry:', e);
@@ -1469,10 +1722,8 @@ class MuseumStore {
     this.userInquiries = this.userInquiries.filter(i => i.id !== id);
     try {
       localStorage.setItem(STORAGE_KEYS.USER_INQUIRIES, JSON.stringify(this.userInquiries));
+      this.syncFirestoreCollection('user_inquiries', this.userInquiries);
       this.notify();
-      if (db) {
-        deleteDoc(doc(db, 'user_inquiries', id)).catch(() => {});
-      }
     } catch (e) {
       console.error('Failed to delete inquiry:', e);
     }
@@ -1482,6 +1733,7 @@ class MuseumStore {
     this.userInquiries = [];
     try {
       localStorage.setItem(STORAGE_KEYS.USER_INQUIRIES, JSON.stringify(this.userInquiries));
+      this.syncFirestoreCollection('user_inquiries', this.userInquiries);
       this.notify();
     } catch (e) {
       console.error('Failed to clear inquiries:', e);
@@ -1493,10 +1745,8 @@ class MuseumStore {
   private persistLocalLivingTaxonomy() {
     try {
       localStorage.setItem(STORAGE_KEYS.LOCAL_LIVING_TAXONOMY, JSON.stringify(this.localLivingTaxonomy));
+      this.saveCloudDocument('site_configs', 'local_living_taxonomy', this.localLivingTaxonomy);
       this.notify();
-      if (db) {
-        setDoc(doc(db, 'site_configs', 'local_living_taxonomy'), this.localLivingTaxonomy).catch(() => {});
-      }
     } catch (e) {
       console.error('Failed to persist local living taxonomy:', e);
     }
@@ -1641,10 +1891,8 @@ class MuseumStore {
   private persistHeaderConfig() {
     try {
       localStorage.setItem(STORAGE_KEYS.HEADER_NAV_CONFIG, JSON.stringify(this.headerConfig));
+      this.saveCloudDocument('site_configs', 'header_nav_config', this.headerConfig);
       this.notify();
-      if (db) {
-        setDoc(doc(db, 'site_configs', 'header_nav_config'), this.headerConfig).catch(() => {});
-      }
     } catch (e) {
       console.error('Failed to persist header navigation config:', e);
     }
@@ -1759,10 +2007,8 @@ class MuseumStore {
   private persistContactConfig() {
     try {
       localStorage.setItem(STORAGE_KEYS.CONTACT_PAGE_CONFIG, JSON.stringify(this.contactConfig));
+      this.saveCloudDocument('site_configs', 'contact_page_config', this.contactConfig);
       this.notify();
-      if (db) {
-        setDoc(doc(db, 'site_configs', 'contact_page_config'), this.contactConfig).catch(() => {});
-      }
     } catch (e) {
       console.error('Failed to persist contact page config:', e);
     }
@@ -1920,11 +2166,12 @@ class MuseumStore {
   public getProvinces(): string[] {
     const set = new Set<string>();
     this.museums.forEach(m => {
-      if (m.province && m.province !== 'ไม่ระบุ') {
-        set.add(m.province);
-      }
+      extractCanonicalProvinces(m.province || '').forEach(province => set.add(province));
+      (m.provinces || []).forEach(value =>
+        extractCanonicalProvinces(value).forEach(province => set.add(province))
+      );
     });
-    return Array.from(set).sort();
+    return Array.from(set).sort((a, b) => a.localeCompare(b, 'th'));
   }
 
   public getMuseumTypes(): string[] {
@@ -1960,12 +2207,12 @@ class MuseumStore {
   public createMuseum(data: Omit<Museum, 'id' | 'createdAt' | 'updatedAt'>, adminEmail = 'admin@gmail.com'): Museum {
     const newId = `sac_custom_${Date.now()}`;
     const now = new Date().toISOString();
-    const newMuseum: Museum = {
+    const newMuseum = normalizeMuseumProvinces({
       ...data,
       id: newId,
       createdAt: now,
       updatedAt: now
-    };
+    });
     this.museums.unshift(newMuseum);
     this.recalculateSubjects();
     this.logAudit({
@@ -1983,11 +2230,11 @@ class MuseumStore {
     const index = this.museums.findIndex(m => m.id === id);
     if (index === -1) return undefined;
     const old = this.museums[index];
-    const updated: Museum = {
+    const updated = normalizeMuseumProvinces({
       ...old,
       ...updates,
       updatedAt: new Date().toISOString()
-    };
+    });
     this.museums[index] = updated;
     this.recalculateSubjects();
     this.logAudit({
@@ -2023,7 +2270,7 @@ class MuseumStore {
     const index = this.trash.findIndex(m => m.id === id);
     if (index === -1) return false;
     const [restored] = this.trash.splice(index, 1);
-    this.museums.unshift(restored);
+    this.museums.unshift(normalizeMuseumProvinces(restored));
     this.recalculateSubjects();
     this.logAudit({
       action: 'RESTORE',
@@ -2048,6 +2295,7 @@ class MuseumStore {
       details: `ลบพิพิธภัณฑ์ถาวร: ${removed.title}`,
       adminEmail
     });
+    this.persistMuseums();
     this.persistTrash();
     return true;
   }
@@ -2332,8 +2580,11 @@ class MuseumStore {
     // SCENARIO 3: General / All Data / Filtered by Province or Type
     else {
       let candidateMuseums = publishedMuseums;
-      if (options?.province && options.province !== 'all') {
-        candidateMuseums = candidateMuseums.filter(m => m.province === options.province);
+      const province = options?.province;
+      if (province && province !== 'all') {
+        candidateMuseums = candidateMuseums.filter(m =>
+          m.province === province || m.provinces?.includes(province)
+        );
       }
       if (options?.museumType && options.museumType !== 'all') {
         candidateMuseums = candidateMuseums.filter(m => m.type === options.museumType);
@@ -2449,7 +2700,7 @@ class MuseumStore {
 
   // --- EXPORT PIPELINE (WITH UTF-8 BOM) ---
 
-  public exportMuseumsCSV(): string {
+  public exportMuseumsCSV(publishedOnly = false): string {
     const headers = ['id', 'title', 'type', 'creator', 'provenance', 'subjectRaw', 'spatial', 'province', 'temporal', 'language', 'rights', 'license', 'sourceUri'];
     const escapeCsv = (val: any) => {
       if (val === undefined || val === null) return '""';
@@ -2457,7 +2708,8 @@ class MuseumStore {
       return `"${str}"`;
     };
 
-    const rows = this.museums.map(m => [
+    const museums = publishedOnly ? this.getPublishedMuseums() : this.museums;
+    const rows = museums.map(m => [
       escapeCsv(m.id),
       escapeCsv(m.title),
       escapeCsv(m.type),
@@ -2477,13 +2729,15 @@ class MuseumStore {
     return '\uFEFF' + [headers.join(','), ...rows].join('\n');
   }
 
-  public exportMuseumsJSON(): string {
-    return JSON.stringify(this.museums, null, 2);
+  public exportMuseumsJSON(publishedOnly = false): string {
+    const museums = publishedOnly ? this.getPublishedMuseums() : this.museums;
+    return JSON.stringify(museums, null, 2);
   }
 
-  public exportSubjectsCSV(): string {
+  public exportSubjectsCSV(activeOnly = false): string {
     const headers = ['id', 'name', 'count', 'museumIds'];
-    const rows = this.subjects.map(s => [
+    const subjects = activeOnly ? this.subjects.filter(subject => subject.status === 'active') : this.subjects;
+    const rows = subjects.map(s => [
       `"${s.id}"`,
       `"${s.name.replace(/"/g, '""')}"`,
       s.count,
@@ -2493,8 +2747,9 @@ class MuseumStore {
     return '\uFEFF' + [headers.join(','), ...rows].join('\n');
   }
 
-  public exportSubjectsJSON(): string {
-    return JSON.stringify(this.subjects, null, 2);
+  public exportSubjectsJSON(activeOnly = false): string {
+    const subjects = activeOnly ? this.subjects.filter(subject => subject.status === 'active') : this.subjects;
+    return JSON.stringify(subjects, null, 2);
   }
 
   public exportGraphJSON(): string {
@@ -2528,7 +2783,7 @@ class MuseumStore {
         ? item.subjectList 
         : (item.subjectRaw ? item.subjectRaw.split(',').map((s: string) => s.trim()).filter(Boolean) : []);
 
-      const museum: Museum = {
+      const museum = normalizeMuseumProvinces({
         id: newId,
         sourceId: item.sourceId || '',
         title: item.title.trim(),
@@ -2539,6 +2794,7 @@ class MuseumStore {
         subjectList: subjList,
         spatial: item.spatial || '',
         province: item.province || 'ไม่ระบุ',
+        provinces: Array.isArray(item.provinces) ? item.provinces : undefined,
         temporal: item.temporal || '',
         language: item.language || 'ไทย',
         rights: item.rights || '',
@@ -2550,7 +2806,7 @@ class MuseumStore {
         status: 'published',
         createdAt: item.createdAt || new Date().toISOString(),
         updatedAt: new Date().toISOString()
-      };
+      });
 
       this.museums.push(museum);
       success++;

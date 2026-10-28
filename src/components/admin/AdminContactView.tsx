@@ -65,7 +65,7 @@ export const AdminContactView: React.FC<AdminContactViewProps> = ({ onNavigate }
       role: 'ผู้พัฒนาระบบ (System Developer)',
       affiliation: 'คณะทำงานเทคโนโลยีสารสนเทศมรดกวัฒนธรรม',
       bio: '',
-      imageUrl: '/assets/aistudio/Echoes_of_Siam_Heritage_Emblem_b1d3a246.png',
+      imageUrl: '/assets/optimized/echoes-of-siam-emblem.webp',
       email: '',
       phone: '',
       websiteUrl: '',
@@ -290,11 +290,11 @@ export const AdminContactView: React.FC<AdminContactViewProps> = ({ onNavigate }
                       <div className="relative shrink-0">
                         <div className="w-20 h-20 rounded-full p-1 bg-gradient-to-tr from-[#9c7d5c] via-[#d4af37] to-[#e6c12f] shadow-md">
                           <img
-                            src={creator.imageUrl || '/assets/aistudio/Echoes_of_Siam_Heritage_Emblem_b1d3a246.png'}
+                            src={creator.imageUrl || '/assets/optimized/echoes-of-siam-emblem.webp'}
                             alt={creator.name}
                             className="w-full h-full rounded-full object-cover bg-[#2a1d13]"
                             onError={(e) => {
-                              (e.target as HTMLImageElement).src = '/assets/aistudio/Echoes_of_Siam_Heritage_Emblem_b1d3a246.png';
+                              (e.target as HTMLImageElement).src = '/assets/optimized/echoes-of-siam-emblem.webp';
                             }}
                           />
                         </div>
@@ -716,11 +716,11 @@ export const AdminContactView: React.FC<AdminContactViewProps> = ({ onNavigate }
                 <div className="shrink-0 text-center">
                   <div className="w-24 h-24 rounded-full p-1 bg-gradient-to-tr from-[#9c7d5c] via-[#d4af37] to-[#e6c12f] shadow-lg mx-auto ring-4 ring-[#fffdf7]">
                     <img
-                      src={editingCreator.imageUrl || '/assets/aistudio/Echoes_of_Siam_Heritage_Emblem_b1d3a246.png'}
+                      src={editingCreator.imageUrl || '/assets/optimized/echoes-of-siam-emblem.webp'}
                       alt="Avatar Preview"
                       className="w-full h-full rounded-full object-cover bg-[#2a1d13]"
                       onError={(e) => {
-                        (e.target as HTMLImageElement).src = '/assets/aistudio/Echoes_of_Siam_Heritage_Emblem_b1d3a246.png';
+                        (e.target as HTMLImageElement).src = '/assets/optimized/echoes-of-siam-emblem.webp';
                       }}
                     />
                   </div>
@@ -743,7 +743,7 @@ export const AdminContactView: React.FC<AdminContactViewProps> = ({ onNavigate }
                     <span className="text-[#9c7d5c]">ภาพตัวอย่างด่วน:</span>
                     <button
                       type="button"
-                      onClick={() => setEditingCreator({ ...editingCreator, imageUrl: '/assets/aistudio/Echoes_of_Siam_Heritage_Emblem_b1d3a246.png' })}
+                      onClick={() => setEditingCreator({ ...editingCreator, imageUrl: '/assets/optimized/echoes-of-siam-emblem.webp' })}
                       className="px-2 py-0.5 bg-[#f5ede0] rounded text-[#866747] hover:underline cursor-pointer"
                     >
                       ตราสัญลักษณ์โครงการ

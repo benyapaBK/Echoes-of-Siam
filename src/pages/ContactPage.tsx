@@ -4,23 +4,20 @@ import {
   Phone, 
   Mail, 
   Clock, 
-  Send, 
   Check, 
   Globe, 
-  MessageSquare, 
   Compass, 
   ExternalLink, 
   Share2, 
   Copy, 
   Sparkles, 
-  UserCheck, 
-  Award, 
-  ShieldCheck, 
-  Layers, 
-  Navigation
+  UserCheck,
+  Navigation,
+  MessageSquare,
+  ArrowUpRight
 } from 'lucide-react';
 import { museumStore } from '../services/museumStore';
-import type { ContactPageConfig, CreatorProfile } from '../types/museum';
+import type { ContactPageConfig } from '../types/museum';
 
 interface ContactPageProps {
   onNavigate: (tab: string, meta?: any) => void;
@@ -29,17 +26,6 @@ interface ContactPageProps {
 export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate }) => {
   const [config, setConfig] = useState<ContactPageConfig>(() => museumStore.getContactConfig());
   const [copiedField, setCopiedField] = useState<string | null>(null);
-
-  // Form State
-  const [formData, setFormData] = useState({
-    senderName: '',
-    senderEmail: '',
-    senderPhone: '',
-    subject: '',
-    message: ''
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitSuccess, setSubmitSuccess] = useState(false);
 
   useEffect(() => {
     const unsub = museumStore.subscribe(() => {
@@ -52,33 +38,6 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate }) => {
     navigator.clipboard.writeText(text);
     setCopiedField(fieldName);
     setTimeout(() => setCopiedField(null), 2500);
-  };
-
-  const handleSubmitForm = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formData.senderName.trim() || !formData.message.trim()) {
-      alert('กรุณากรอกชื่อและข้อความที่ต้องการส่ง');
-      return;
-    }
-
-    setIsSubmitting(true);
-    
-    // Package query string for Admin User Inquiry Store
-    const formattedQuery = `[แบบฟอร์มติดต่อ] เรื่อง: ${formData.subject || 'ทั่วไป'} | ผู้ส่ง: ${formData.senderName} (${formData.senderEmail || 'ไม่ระบุอีเมล'}, โทร: ${formData.senderPhone || '-'}) | ข้อความ: ${formData.message}`;
-
-    setTimeout(() => {
-      museumStore.addUserInquiry(formattedQuery);
-      setIsSubmitting(false);
-      setSubmitSuccess(true);
-      setFormData({
-        senderName: '',
-        senderEmail: '',
-        senderPhone: '',
-        subject: '',
-        message: ''
-      });
-      setTimeout(() => setSubmitSuccess(false), 6000);
-    }, 600);
   };
 
   const activeCreators = (config.creators || [])
@@ -150,12 +109,12 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate }) => {
                   <div className="w-32 h-32 sm:w-36 sm:h-36 rounded-full p-1.5 bg-gradient-to-tr from-[#9c7d5c] via-[#d4af37] to-[#e6c12f] shadow-lg ring-4 ring-[#fffdf7]">
                     <div className="w-full h-full rounded-full overflow-hidden bg-[#2a1d13] flex items-center justify-center">
                       <img
-                        src={creator.imageUrl || '/assets/aistudio/Echoes_of_Siam_Heritage_Emblem_b1d3a246.png'}
+                        src={creator.imageUrl || '/assets/optimized/echoes-of-siam-emblem.webp'}
                         alt={creator.name}
                         className="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500"
                         onError={(e) => {
                           // Fallback to emblem if image load fails
-                          (e.target as HTMLImageElement).src = '/assets/aistudio/Echoes_of_Siam_Heritage_Emblem_b1d3a246.png';
+                          (e.target as HTMLImageElement).src = '/assets/optimized/echoes-of-siam-emblem.webp';
                         }}
                       />
                     </div>
@@ -391,124 +350,45 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate }) => {
 
           </div>
 
-          {/* Right Column (5 cols): Interactive Contact Form */}
-          <div className="lg:col-span-5">
-            <div className="bg-white rounded-3xl border border-[#d7c8b2] p-7 shadow-md space-y-5">
-              <div className="border-b border-[#ece4d4] pb-4">
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#f5ede0] text-[#866747] text-[11px] font-semibold mb-2">
-                  <MessageSquare className="w-3.5 h-3.5 text-[#9c7d5c]" />
-                  <span>DIRECT INQUIRY</span>
-                </div>
-                <h3 className="text-xl font-bold font-editorial text-[#463629]">
-                  {config.formTitle}
-                </h3>
-                <p className="text-xs text-[#6f5a45] mt-1 leading-relaxed">
-                  {config.formSubtitle}
-                </p>
-              </div>
-
-              {submitSuccess && (
-                <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl text-emerald-800 text-xs flex items-start gap-3 animate-slideDown">
-                  <Check className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
-                  <div className="space-y-1">
-                    <div className="font-bold">ส่งข้อความเรียบร้อยแล้ว!</div>
-                    <div>{config.formSuccessMessage}</div>
-                  </div>
-                </div>
-              )}
-
-              <form onSubmit={handleSubmitForm} className="space-y-4 text-xs">
-                <div>
-                  <label className="block font-medium text-[#463629] mb-1">
-                    ชื่อ-นามสกุล / หน่วยงาน <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.senderName}
-                    onChange={(e) => setFormData({ ...formData, senderName: e.target.value })}
-                    className="w-full px-3.5 py-2.5 bg-[#fbf6ed]/50 border border-[#d7c8b2] rounded-xl focus:outline-hidden focus:border-[#9c7d5c] focus:bg-white text-[#463629] transition-colors"
-                    placeholder="เช่น สมชาย ใจดี หรือ พิพิธภัณฑ์ท้องถิ่นบ้าน..."
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block font-medium text-[#463629] mb-1">
-                      อีเมลสำหรับติดต่อกลับ
-                    </label>
-                    <input
-                      type="email"
-                      value={formData.senderEmail}
-                      onChange={(e) => setFormData({ ...formData, senderEmail: e.target.value })}
-                      className="w-full px-3.5 py-2.5 bg-[#fbf6ed]/50 border border-[#d7c8b2] rounded-xl focus:outline-hidden focus:border-[#9c7d5c] focus:bg-white text-[#463629] transition-colors"
-                      placeholder="name@example.com"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block font-medium text-[#463629] mb-1">
-                      เบอร์โทรศัพท์
-                    </label>
-                    <input
-                      type="tel"
-                      value={formData.senderPhone}
-                      onChange={(e) => setFormData({ ...formData, senderPhone: e.target.value })}
-                      className="w-full px-3.5 py-2.5 bg-[#fbf6ed]/50 border border-[#d7c8b2] rounded-xl focus:outline-hidden focus:border-[#9c7d5c] focus:bg-white text-[#463629] transition-colors"
-                      placeholder="08X-XXX-XXXX"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block font-medium text-[#463629] mb-1">
-                    หัวข้อเรื่องที่ต้องการติดต่อ
-                  </label>
-                  <select
-                    value={formData.subject}
-                    onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                    className="w-full px-3.5 py-2.5 bg-[#fbf6ed]/50 border border-[#d7c8b2] rounded-xl focus:outline-hidden focus:border-[#9c7d5c] focus:bg-white text-[#463629] transition-colors"
-                  >
-                    <option value="">เลือกหัวข้อเรื่อง...</option>
-                    <option value="ร่วมเป็นเครือข่ายพิพิธภัณฑ์">แจ้งข้อมูล / ร่วมเป็นเครือข่ายพิพิธภัณฑ์</option>
-                    <option value="แจ้งแก้ไขข้อมูลพิพิธภัณฑ์หรือหัวเรื่อง">แจ้งแก้ไขข้อมูลพิพิธภัณฑ์หรือหัวเรื่อง</option>
-                    <option value="การนำข้อมูลไปใช้งานวิจัย">ขออนุญาตนำข้อมูลไปใช้งานวิจัยหรือการศึกษา</option>
-                    <option value="สอบถามการทำงานกราฟความรู้">สอบถามการทำงานของกราฟความรู้ & ระบบค้นหา</option>
-                    <option value="อื่นๆ">ข้อเสนอแนะทั่วไป / อื่นๆ</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block font-medium text-[#463629] mb-1">
-                    ข้อความ / รายละเอียด <span className="text-red-500">*</span>
-                  </label>
-                  <textarea
-                    rows={4}
-                    required
-                    value={formData.message}
-                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                    className="w-full px-3.5 py-2.5 bg-[#fbf6ed]/50 border border-[#d7c8b2] rounded-xl focus:outline-hidden focus:border-[#9c7d5c] focus:bg-white text-[#463629] transition-colors resize-none"
-                    placeholder="พิมพ์รายละเอียดที่ท่านต้องการสื่อสารหรือสอบถามกับทีมงาน..."
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full py-3 px-4 bg-[#9c7d5c] hover:bg-[#856748] text-white rounded-xl font-bold shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
-                >
-                  <Send className="w-4 h-4" />
-                  <span>{isSubmitting ? 'กำลังส่งข้อมูล...' : 'ส่งข้อความถึงทีมงาน'}</span>
-                </button>
-
-                <p className="text-[11px] text-center text-[#9c7d5c]">
-                  ข้อความของท่านจะถูกส่งเข้าสู่ระบบจัดการของผู้ดูแลเพื่อการตรวจสอบและประสานงานโดยเร็ว
-                </p>
-              </form>
-            </div>
-          </div>
-
         </div>
+
+        <section className="overflow-hidden rounded-3xl border border-[#d7c8b2] bg-white shadow-md">
+          <div className="border-b border-[#ece4d4] bg-gradient-to-r from-[#2a1d13] to-[#46301d] px-6 py-7 text-white sm:px-8">
+            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-[#d4af37]/40 bg-[#d4af37]/15 px-3 py-1.5 text-xs font-semibold tracking-wide text-[#f3dfb2]">
+              <MessageSquare className="h-4 w-4 text-[#e6c12f]" />
+              <span>ร่วมพัฒนา Echoes of Siam</span>
+            </div>
+            <h2 className="font-editorial text-2xl font-bold text-[#fffdf7] sm:text-3xl">
+              ประเมินเว็บไซต์และส่งข้อเสนอแนะ
+            </h2>
+            <p className="mt-2 max-w-3xl text-sm leading-relaxed text-[#e5d6c3]">
+              แบบประเมินความพึงพอใจและข้อเสนอแนะจะแสดงด้านล่างนี้ สามารถกรอกและส่งได้จากหน้าเว็บไซต์โดยตรง
+            </p>
+          </div>
+          <div className="bg-[#fcf9f5] p-2 sm:p-4">
+            <iframe
+              src="https://docs.google.com/forms/d/e/1FAIpQLSfpaHk-Io_FU-mifG1T9x3jiViuC1d3OyP0qD3-qYZnIlcZ5g/viewform?embedded=true"
+              title="แบบประเมินเว็บไซต์ Echoes of Siam"
+              className="h-[1500px] w-full rounded-2xl border-0 bg-white sm:h-[1350px]"
+              loading="lazy"
+              referrerPolicy="strict-origin-when-cross-origin"
+            >
+              กำลังโหลดแบบประเมิน...
+            </iframe>
+          </div>
+          <div className="border-t border-[#ece4d4] px-6 py-4 text-center text-xs text-[#6f5a45]">
+            หากไม่สามารถแสดงแบบฟอร์มได้{' '}
+            <a
+              href="https://forms.gle/taYfrMHUsiL8fB1J6"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-[#7a5230] underline underline-offset-2 hover:text-[#382415]"
+            >
+              เปิดแบบประเมินในแท็บใหม่
+              <ArrowUpRight className="ml-1 inline h-3.5 w-3.5" />
+            </a>
+          </div>
+        </section>
 
       </div>
     </div>

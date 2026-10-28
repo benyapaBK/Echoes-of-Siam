@@ -19,6 +19,7 @@ import { Insights } from './pages/Insights';
 import { About } from './pages/About';
 import { HelpCenter } from './pages/HelpCenter';
 import { ContactPage } from './pages/ContactPage';
+import { DataExportPage } from './pages/DataExportPage';
 import { Admin } from './pages/Admin';
 import { Login } from './pages/Login';
 
@@ -131,6 +132,10 @@ export default function App() {
 
           {currentTab === 'contact' && (
             <ContactPage onNavigate={handleNavigate} />
+          )}
+
+          {currentTab === 'export' && (
+            <DataExportPage />
           )}
 
           {currentTab === 'help' && (

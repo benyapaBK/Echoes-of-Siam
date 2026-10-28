@@ -17,7 +17,7 @@ export const About: React.FC = () => {
       {/* Header */}
       <div className="border-b border-[#d7c8b2] pb-6 flex flex-col sm:flex-row sm:items-center gap-6">
         <img 
-          src="/assets/aistudio/Echoes_of_Siam_Heritage_Emblem_b1d3a246.png" 
+          src="/assets/optimized/echoes-of-siam-emblem.webp"
           alt="Echoes of Siam Emblem" 
           className="w-24 h-24 object-contain rounded-xl shadow-xs shrink-0 self-start" 
         />

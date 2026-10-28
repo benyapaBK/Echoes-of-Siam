@@ -302,7 +302,7 @@ export const SubjectExplorer: React.FC<SubjectExplorerProps> = ({
         {/* Subtle decorative heritage background watermark */}
         <div 
           className="absolute right-0 top-0 bottom-0 w-1/3 opacity-5 pointer-events-none bg-contain bg-right bg-no-repeat"
-          style={{ backgroundImage: `url('/assets/aistudio/_________15455181.png')` }}
+          style={{ backgroundImage: `url('/assets/optimized/parchment-background.webp')` }}
         />
 
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 relative z-10 border-b border-[#d7c8b2]/60 pb-6">
@@ -326,9 +326,8 @@ export const SubjectExplorer: React.FC<SubjectExplorerProps> = ({
             </p>
           </div>
 
-          {/* Header Stats Counter & Admin CMS Button */}
-          <div className="flex flex-col sm:flex-row md:flex-col items-end gap-3 shrink-0 self-start md:self-center">
-            
+          {/* Header Stats Counter */}
+          <div className="flex items-center gap-2.5 shrink-0 self-start md:self-center">
             <div className="flex items-center gap-2.5">
               <div className="px-3.5 py-2 rounded-xl bg-white border border-[#d7c8b2] text-center shadow-2xs">
                 <span className="text-[10px] text-[#735640] uppercase tracking-wider block font-heading">หมวดหลัก</span>
@@ -339,16 +338,6 @@ export const SubjectExplorer: React.FC<SubjectExplorerProps> = ({
                 <span className="text-lg font-bold font-editorial text-[#e6c12f]">{localLivingMuseumCount.toLocaleString('th-TH')} แห่ง</span>
               </div>
             </div>
-
-            {/* Admin Management Button */}
-            <button
-              onClick={() => onNavigate('admin', { menu: 'subjects', subTab: 'taxonomy' })}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-gradient-to-r from-[#e6c12f] to-[#e8c742] text-[#463629] text-xs font-heading font-bold rounded-xl shadow-md hover:brightness-105 transition-all cursor-pointer"
-              title="แอดมินสามารถแก้ไของค์ประกอบดัชนีวิถีชีวิตท้องถิ่นและ 9 ประเภทได้ที่นี่"
-            >
-              <Edit3 className="w-3.5 h-3.5" />
-              <span>แก้ไของค์ประกอบดัชนี (Admin)</span>
-            </button>
           </div>
         </div>
 

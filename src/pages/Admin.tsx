@@ -103,7 +103,7 @@ export const Admin: React.FC<AdminProps> = ({ onNavigate, initialMenu, initialSu
           </div>
           <h1 className="text-2xl font-editorial font-bold text-[#463629] flex items-center gap-2.5">
             <img 
-              src="/assets/aistudio/Echoes_of_Siam_Heritage_Emblem_b1d3a246.png" 
+              src="/assets/optimized/echoes-of-siam-emblem.webp"
               alt="Echoes of Siam" 
               className="w-7 h-7 object-contain rounded-full shadow-2xs" 
             />
@@ -113,10 +113,10 @@ export const Admin: React.FC<AdminProps> = ({ onNavigate, initialMenu, initialSu
 
         <div className="flex items-center gap-3">
           <div className="text-right text-xs">
-            <span className="block font-semibold text-[#463629]">{adminEmail || 'admin@gmail.com'}</span>
+            <span className="block font-semibold text-[#463629]">{adminEmail}</span>
             <span className="text-[11px] text-emerald-700 flex items-center gap-1 justify-end">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 inline-block" />
-              <span>{isFirebaseActive ? 'เชื่อมต่อ Firebase แล้ว' : 'โหมดการจัดการคลังข้อมูลในเครื่อง'}</span>
+              <span>{isFirebaseActive ? 'เชื่อมต่อ Firebase แล้ว' : 'Firebase ยังไม่พร้อมใช้งาน'}</span>
             </span>
           </div>
 
@@ -917,7 +917,7 @@ const AdminBannersView: React.FC<{ onNavigate: (tab: string, meta?: any) => void
     setSubtitle('');
     setTag('แบนเนอร์สไลด์ใหม่');
     setBadgeText('Echoes of Siam');
-    setImageUrl('/assets/images/siam_museum_heritage_hall_1792473891438.jpg');
+    setImageUrl('/assets/optimized/museum-heritage-hall.webp');
     setMediaType('image');
     setVideoUrl('');
     setIsGenerativeLivingMemory(false);
@@ -1033,23 +1033,23 @@ const AdminBannersView: React.FC<{ onNavigate: (tab: string, meta?: any) => void
   const PRESET_IMAGES = [
     {
       label: 'ภาพหน้าปกและตราสัญลักษณ์ทางการ Echoes of Siam (สัญลักษณ์และจิตรกรรมมรดก)',
-      url: '/assets/images/echoes_of_siam_banner.png'
+      url: '/assets/optimized/heritage-banner.webp'
     },
     {
       label: 'ภาพห้องโถงพิพิธภัณฑ์มรดกสยาม (แบนเนอร์ต้อนรับ)',
-      url: '/assets/images/siam_museum_heritage_hall_1792473891438.jpg'
+      url: '/assets/optimized/museum-heritage-hall.webp'
     },
     {
       label: 'สถาปัตยกรรมคลังวัฒนธรรมและแผนผังความรู้ (เกี่ยวกับเว็บไซต์)',
-      url: '/assets/images/siam_cultural_archive_1792474260752.jpg'
+      url: '/assets/optimized/siam-cultural-archive.webp'
     },
     {
       label: 'ศิลปวัตถุโบราณคดีและวิถีชนบ้านเชียง (ตัวอย่างข้อมูลจัดแสดง)',
-      url: '/assets/images/thai_crafts_pottery_artifacts_1792473892186.jpg'
+      url: '/assets/optimized/thai-crafts-artifacts.webp'
     },
     {
       label: 'ตราสัญลักษณ์มรดกสยามทางการ (Emblem Avatar)',
-      url: '/assets/aistudio/Echoes_of_Siam_Heritage_Emblem_b1d3a246.png'
+      url: '/assets/optimized/echoes-of-siam-emblem.webp'
     }
   ];
 

@@ -23,7 +23,6 @@ import {
   Phone,
   UserCheck
 } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
 import { museumStore } from '../../services/museumStore';
 import type { HeaderConfig, NavMenuItem, NavDropdownItem } from '../../types/museum';
 
@@ -73,8 +72,6 @@ const getNavIcon = (iconName?: string, className = "w-4 h-4") => {
 };
 
 export const Navbar: React.FC<NavbarProps> = ({ currentTab, onNavigate, onOpenSearch, onOpenHelp }) => {
-  const { isAdmin } = useAuth();
-  
   // 1. Reactive Header Configuration from store
   const [headerConfig, setHeaderConfig] = useState<HeaderConfig>(() => museumStore.getHeaderConfig());
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -172,7 +169,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onNavigate, onOpenSe
           >
             <div className="relative">
               <img 
-                src={headerConfig.brandEmblemUrl || "/assets/aistudio/Echoes_of_Siam_Heritage_Emblem_b1d3a246.png"} 
+                src={headerConfig.brandEmblemUrl || "/assets/optimized/echoes-of-siam-emblem.webp"}
                 alt={headerConfig.brandTitle || "Echoes of Siam"} 
                 className="w-10 h-10 object-contain rounded-full shadow-xs group-hover:scale-105 transition-transform shrink-0 ring-1 ring-[#e6c12f]/50" 
               />

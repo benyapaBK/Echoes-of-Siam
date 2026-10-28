@@ -15,14 +15,15 @@
 - **หน้ารายละเอียดพิพิธภัณฑ์ (Museum Detail)**: ข้อมูลประวัติการได้มา (Provenance), ผู้สร้าง (Creator), สิทธิ์ (Rights), ลิงก์ตรงสู่ฐานข้อมูล ศมส. (SAC) และพิพิธภัณฑ์ที่เกี่ยวข้อง
 - **ภาพรวมและสถิติข้อมูล (Insights)**: กราฟแท่งเปรียบเทียบสัดส่วนประเภทพิพิธภัณฑ์ จังหวัดที่มีพิพิธภัณฑ์สูงสุด 12 ลำดับแรก และหัวเรื่องยอดนิยม 15 ลำดับแรก
 - **ระบบผู้ดูแลระบบ (Admin Console)**:
-  - บัญชีผู้ดูแลหนึ่งเดียว (`admin@gmail.com`)
+  - เข้าสู่ระบบด้วยบัญชีผู้ดูแลจริงที่สร้างไว้ใน Firebase Authentication และได้รับอนุญาตในระบบ
   - จัดการพิพิธภัณฑ์ (เพิ่ม แก้ไข สถานะ ฉบับร่าง/เผยแพร่)
   - นโยบายรูปภาพภายนอก HTTPS เท่านั้น (ไม่มีการเก็บไฟล์ใน Firebase Storage)
   - เครื่องมือรวมหัวเรื่อง (Subject Merge Tool)
   - ถังขยะและระบบกู้คืน (Soft Delete & Restore)
   - ตรวจจับข้อมูลซ้ำซ้อนและรายงานคุณภาพข้อมูล (Data Quality Audit)
   - บันทึกกิจกรรมที่ไม่สามารถแก้ไขได้ (Immutable Audit Logs)
-  - ระบบนำเข้าและส่งออกข้อมูล (Export CSV พร้อม UTF-8 BOM สำหรับ Excel ภาษาไทย)
+  - บันทึกข้อมูลที่ผู้ดูแลแก้ไขลง Firestore พร้อมบันทึก Audit Log
+  - หน้าดาวน์โหลดข้อมูลสาธารณะ ส่งออกพิพิธภัณฑ์และหัวเรื่องได้เป็น CSV, JSON และ XML โดยไม่ต้องเข้าสู่ระบบ
   - ปรับขนาดมาสคอตด้วยแถบเลื่อน และเปิดแชทผ่านปุ่มแถบด้านข้างได้
 
 ---
@@ -79,21 +80,7 @@ npm run build
 
 1. สร้างโปรเจกต์ใน Firebase Console
 2. เปิดใช้งาน **Cloud Firestore** และ **Firebase Authentication** (เลือกวิธี Email/Password)
-3. กำหนดค่าใน `.env`:
-   ```env
-   VITE_FIREBASE_API_KEY="your-api-key"
-   VITE_FIREBASE_AUTH_DOMAIN="your-project.firebaseapp.com"
-   VITE_FIREBASE_PROJECT_ID="your-project-id"
-   VITE_FIREBASE_STORAGE_BUCKET="your-project.appspot.com"
-   VITE_FIREBASE_MESSAGING_SENDER_ID="your-sender-id"
-   VITE_FIREBASE_APP_ID="your-app-id"
-   ```
-4. ปรับใช้กฎความปลอดภัย `firestore.rules` และดัชนี `firestore.indexes.json`
-
----
-
-## 6. ข้อมูลผู้ดูแลระบบเริ่มต้นสำหรับการทดสอบ (Development Preview)
-
-- **Email**: `admin@gmail.com`
-- **Password**: `admin123456`
-- หรือกดปุ่ม **"Quick Demo Admin"** ในหน้าเข้าสู่ระบบเพื่อทดสอบการทำงานของผู้ดูแลได้ทันที
+3. กำหนดค่าจาก Web App ใน Firebase Console ลงใน `firebase-applet-config.json` ซึ่งเป็นไฟล์ที่แอปใช้เชื่อมต่อ Firebase
+4. เพิ่มบัญชีผู้ดูแลจริงใน **Authentication → Users** และตั้งรหัสผ่านจาก Firebase Console หรือส่งลิงก์รีเซ็ตรหัสผ่านให้ผู้ดูแล ห้ามเก็บรหัสผ่านจริงไว้ใน source code หรือเอกสาร
+5. ตรวจสอบว่าอีเมลของบัญชีอยู่ในรายการผู้ดูแลที่อนุญาตใน `src/context/AuthContext.tsx`
+6. ปรับใช้กฎความปลอดภัย `firestore.rules` และดัชนี `firestore.indexes.json` ก่อนเปิดใช้งานการบันทึกข้อมูลจากผู้ดูแล โดยระบบใช้คอลเลกชัน `museums`, `subjects`, `banners`, `bloom_presets`, `kg_images`, `site_configs`, `audit_logs`, `trash` และ `user_inquiries`

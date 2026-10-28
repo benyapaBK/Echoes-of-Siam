@@ -90,7 +90,7 @@ export const AdminKnowledgeGraphView: React.FC<AdminKnowledgeGraphViewProps> = (
   const PRESET_KG_IMAGE_OPTIONS = [
     {
       label: 'ภาพโครงข่ายความสัมพันธ์ Neo4j Bloom (The Living Memory Universe)',
-      url: '/assets/aistudio/bloom-visualisation-5_2bf66740.png'
+      url: '/assets/optimized/knowledge-graph.webp'
     },
     {
       label: 'ภาพกลุ่มดาวแห่งความทรงจำสยาม (The Living Memory Universe Constellation)',
@@ -98,11 +98,11 @@ export const AdminKnowledgeGraphView: React.FC<AdminKnowledgeGraphViewProps> = (
     },
     {
       label: 'แผนภาพมหาจักรวาลสยาม (The Living Memory Universe)',
-      url: '/assets/images/siam_cultural_archive_1792474260752.jpg'
+      url: '/assets/optimized/siam-cultural-archive.webp'
     },
     {
       label: 'ตราสัญลักษณ์มรดกสยาม (Echoes of Siam Heritage Emblem)',
-      url: '/assets/aistudio/Echoes_of_Siam_Heritage_Emblem_b1d3a246.png'
+      url: '/assets/optimized/echoes-of-siam-emblem.webp'
     },
     {
       label: 'คลังโบราณคดีและงานประณีตศิลป์',

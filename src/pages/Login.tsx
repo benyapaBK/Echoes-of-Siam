@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Shield, Lock, Mail, ArrowRight, ArrowLeft, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Shield, Lock, Mail, ArrowLeft, CheckCircle2, AlertCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 interface LoginProps {
@@ -7,9 +7,9 @@ interface LoginProps {
 }
 
 export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
-  const { loginWithFirebase, loginAsDemoAdmin, isFirebaseActive, isAdmin } = useAuth();
-  const [email, setEmail] = useState('admin@gmail.com');
-  const [password, setPassword] = useState('admin123456');
+  const { loginWithFirebase, isFirebaseActive, isAdmin, adminEmail } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -23,7 +23,7 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
           เข้าสู่ระบบในฐานะผู้ดูแลแล้ว
         </h2>
         <p className="text-xs text-[#6f5a45]">
-          ท่านกำลังใช้งานบัญชีผู้ดูแลระบบ (admin@gmail.com)
+          ท่านกำลังใช้งานบัญชีผู้ดูแลระบบ ({adminEmail})
         </p>
         <div className="pt-2 flex flex-col gap-2">
           <button
@@ -51,16 +51,25 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
     try {
       await loginWithFirebase(email, password);
       onNavigate('admin');
-    } catch (err: any) {
-      setErrorMsg(err.message || 'การเข้าสู่ระบบล้มเหลว ตรวจสอบอีเมลและรหัสผ่าน');
+    } catch (err: unknown) {
+      const code = err && typeof err === 'object' && 'code' in err && typeof err.code === 'string'
+        ? err.code
+        : '';
+      const message = err instanceof Error ? err.message : '';
+      if (code === 'auth/invalid-credential') {
+        setErrorMsg('อีเมลหรือรหัสผ่านไม่ถูกต้อง หรือไม่พบบัญชีนี้ใน Firebase Authentication โปรดตรวจสอบบัญชีและรีเซ็ตรหัสผ่านใน Firebase Console');
+      } else if (code === 'auth/operation-not-allowed') {
+        setErrorMsg('ยังไม่ได้เปิดวิธีลงชื่อเข้าใช้ Email/Password ใน Firebase Authentication');
+      } else if (code === 'auth/too-many-requests') {
+        setErrorMsg('มีการลองเข้าสู่ระบบหลายครั้งเกินไป โปรดลองใหม่ภายหลังหรือรีเซ็ตรหัสผ่าน');
+      } else if (code === 'auth/network-request-failed') {
+        setErrorMsg('เชื่อมต่อ Firebase ไม่สำเร็จ โปรดตรวจสอบเครือข่ายแล้วลองอีกครั้ง');
+      } else {
+        setErrorMsg(message || 'การเข้าสู่ระบบล้มเหลว โปรดตรวจสอบการตั้งค่า Firebase และบัญชีผู้ดูแล');
+      }
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleQuickDemo = () => {
-    loginAsDemoAdmin();
-    onNavigate('admin');
   };
 
   return (
@@ -89,21 +98,11 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
           </p>
         </div>
 
-        {/* Quick Demo Access Bar */}
-        <div className="p-3.5 bg-[#ece4d4]/60 rounded-xl border border-[#d7c8b2] space-y-2">
-          <div className="flex items-center justify-between text-xs">
-            <span className="font-semibold text-[#463629]">ทดสอบระบบใน Development Preview:</span>
-            <span className="text-[10px] text-[#9c7d5c] font-mono">admin@gmail.com</span>
+        {!isFirebaseActive && (
+          <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-900">
+            ยังไม่ได้ตั้งค่า Firebase Authentication จึงไม่สามารถเข้าสู่ระบบได้ โปรดตรวจสอบไฟล์ <code>firebase-applet-config.json</code>
           </div>
-          <button
-            type="button"
-            onClick={handleQuickDemo}
-            className="w-full py-2 bg-[#9c7d5c] hover:bg-[#856748] text-white rounded-lg text-xs font-semibold transition-colors flex items-center justify-center gap-1.5 shadow-2xs"
-          >
-            <span>เข้าสู่ระบบทันที (Quick Demo Admin)</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </button>
-        </div>
+        )}
 
         {errorMsg && (
           <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-xs text-red-700 flex items-start gap-2">
@@ -123,9 +122,10 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
               <input
                 type="email"
                 required
+                autoComplete="username"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
-                placeholder="admin@gmail.com"
+                placeholder="อีเมลบัญชีผู้ดูแล"
                 className="w-full pl-9 pr-3 py-2 text-xs text-[#463629] bg-[#fffdf7] border border-[#d7c8b2] rounded-lg focus:outline-none focus:border-[#9c7d5c]"
               />
             </div>
@@ -140,6 +140,7 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
               <input
                 type="password"
                 required
+                autoComplete="current-password"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 placeholder="••••••••"
@@ -150,7 +151,7 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || !isFirebaseActive}
             className="w-full py-2.5 bg-[#463629] hover:bg-[#34271c] text-white rounded-lg text-xs font-semibold transition-colors disabled:opacity-50"
           >
             {loading ? 'กำลังตรวจสอบสิทธิ์...' : 'ยืนยันตัวตนด้วย Firebase Auth'}

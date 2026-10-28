@@ -732,17 +732,6 @@ export const KnowledgeGraphPage: React.FC<KnowledgeGraphPageProps> = ({
 
           </div>
 
-          {/* Quick Admin & Guide Links */}
-          <div className="flex items-center justify-end gap-3 px-2 text-xs text-[#6f5a45]">
-            <span className="hidden lg:inline text-[11px]">จัดการกราฟความรู้ & บูมโดยแอดมินใน</span>
-            <button
-              onClick={() => onNavigate('admin')}
-              className="text-[#9c7d5c] font-semibold underline hover:text-[#856748] cursor-pointer"
-            >
-              Admin Console
-            </button>
-          </div>
-
         </div>
       </div>
 
@@ -761,39 +750,43 @@ export const KnowledgeGraphPage: React.FC<KnowledgeGraphPageProps> = ({
                 <span>สไลด์แผนภาพความรู้:</span>
               </span>
               
-              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
-                {kgImages.map((img, idx) => {
-                  const isCur = idx === activeSlideIndex;
-                  return (
-                    <button
-                      key={img.id}
-                      onClick={() => handleSelectSlide(idx)}
-                      className={`px-3 py-1.5 rounded-xl text-xs font-heading transition-all cursor-pointer flex items-center gap-1.5 shrink-0 ${
-                        isCur
-                          ? 'bg-gradient-to-r from-[#9c7d5c] to-[#856748] text-white font-bold shadow-md ring-2 ring-[#e6c12f]/60 scale-102'
-                          : 'bg-[#ece4d4]/60 text-[#6f5a45] hover:bg-[#ece4d4] hover:text-[#463629]'
-                      }`}
-                    >
-                      <span className={`w-2 h-2 rounded-full ${isCur ? 'bg-[#e6c12f] animate-pulse' : 'bg-[#9c7d5c]/40'}`} />
-                      <span className="max-w-[140px] truncate">{img.title}</span>
-                      <span className="text-[10px] opacity-75 font-mono">0{idx + 1}</span>
-                    </button>
-                  );
-                })}
-              </div>
+              {kgImages.length > 5 ? (
+                <select
+                  aria-label="เลือกแผนภาพกราฟความรู้"
+                  value={activeSlideIndex}
+                  onChange={(event) => handleSelectSlide(Number(event.target.value))}
+                  className="min-w-0 w-full max-w-full rounded-xl border border-[#d7c8b2] bg-[#fffdf7] px-3 py-2 text-xs text-[#463629] sm:w-80"
+                >
+                  {kgImages.map((img, idx) => (
+                    <option key={img.id} value={idx}>
+                      {`${String(idx + 1).padStart(2, '0')} · ${img.title}`}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <div className="flex max-w-full flex-wrap items-center gap-1.5">
+                  {kgImages.map((img, idx) => {
+                    const isCur = idx === activeSlideIndex;
+                    return (
+                      <button
+                        key={img.id}
+                        onClick={() => handleSelectSlide(idx)}
+                        className={`max-w-full px-3 py-1.5 rounded-xl text-xs font-heading transition-all cursor-pointer flex items-center gap-1.5 ${
+                          isCur
+                            ? 'bg-gradient-to-r from-[#9c7d5c] to-[#856748] text-white font-bold shadow-md ring-2 ring-[#e6c12f]/60'
+                            : 'bg-[#ece4d4]/60 text-[#6f5a45] hover:bg-[#ece4d4] hover:text-[#463629]'
+                        }`}
+                      >
+                        <span className={`w-2 h-2 rounded-full shrink-0 ${isCur ? 'bg-[#e6c12f] animate-pulse' : 'bg-[#9c7d5c]/40'}`} />
+                        <span className="max-w-[140px] truncate">{img.title}</span>
+                        <span className="text-[10px] opacity-75 font-mono shrink-0">{String(idx + 1).padStart(2, '0')}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </div>
 
-            {/* Admin Management Button (Direct quick link to Admin for adding/editing images) */}
-            <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
-              <button
-                onClick={() => onNavigate('admin', { menu: 'bloom', subTab: 'image' })}
-                className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-[#e6c12f] to-[#e8c742] text-[#463629] text-xs font-heading font-bold shadow-md hover:brightness-105 active:scale-98 transition-all cursor-pointer"
-                title="ระบบจัดการเพื่อเพิ่มภาพแผนภาพกราฟความรู้โดยแอดมิน"
-              >
-                <Plus className="w-4 h-4 text-[#463629]" />
-                <span>เพิ่มภาพ / จัดการสไลด์ (Admin)</span>
-              </button>
-            </div>
           </div>
 
           {/* Single Column Vertical Layout: Full-Width Image Slider Viewer on Top */}
@@ -816,7 +809,7 @@ export const KnowledgeGraphPage: React.FC<KnowledgeGraphPageProps> = ({
                 {/* Slider and Zoom Controls */}
                 <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
                   {/* Auto Slide Toggle */}
-                  {kgImages.length > 1 && (
+                  {kgImages.length > 1 && kgImages.length <= 5 && (
                     <button
                       onClick={() => setIsAutoSlide(p => !p)}
                       className={`p-1.5 sm:p-2 rounded-lg border transition-colors cursor-pointer ${
@@ -1064,15 +1057,6 @@ export const KnowledgeGraphPage: React.FC<KnowledgeGraphPageProps> = ({
                   </button>
                 </div>
 
-                <div className="text-xs text-[#735640] flex items-center gap-2">
-                  <span>ต้องการปรับแก้แผนภาพหรือคำบรรยาย?</span>
-                  <button
-                    onClick={() => onNavigate('admin')}
-                    className="text-[#5c3d26] font-semibold underline hover:text-[#382415] cursor-pointer"
-                  >
-                    จัดการในระบบแอดมิน
-                  </button>
-                </div>
               </div>
 
             </div>
@@ -1162,15 +1146,6 @@ export const KnowledgeGraphPage: React.FC<KnowledgeGraphPageProps> = ({
                 </span>
               </div>
 
-              <div className="text-xs text-[#6f5a45] flex items-center gap-1.5">
-                <span>จัดการเพิ่ม/แก้ไขโดยแอดมินใน</span>
-                <button 
-                  onClick={() => onNavigate('admin')}
-                  className="text-[#9c7d5c] font-semibold underline hover:text-[#856748] cursor-pointer"
-                >
-                  Admin Console
-                </button>
-              </div>
             </div>
 
             {/* Preset Chips */}

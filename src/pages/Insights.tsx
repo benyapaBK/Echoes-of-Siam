@@ -32,9 +32,11 @@ export const Insights: React.FC = () => {
   // Province distribution (top 12)
   const provinceDistribution = useMemo(() => {
     const counts = new Map<string, number>();
+    const knownProvinces = new Set(museumStore.getProvinces());
     allMuseums.forEach(m => {
-      const p = m.province || 'ไม่ระบุ';
-      counts.set(p, (counts.get(p) || 0) + 1);
+      const provinces = new Set([m.province, ...(m.provinces || [])]
+        .filter(province => knownProvinces.has(province)));
+      provinces.forEach(province => counts.set(province, (counts.get(province) || 0) + 1));
     });
     return Array.from(counts.entries())
       .map(([province, count]) => ({ province, count }))

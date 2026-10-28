@@ -15,7 +15,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
           <div className="md:col-span-2 space-y-3.5">
             <div className="flex items-center gap-3">
               <img 
-                src="/assets/aistudio/Echoes_of_Siam_Heritage_Emblem_b1d3a246.png" 
+                src="/assets/optimized/echoes-of-siam-emblem.webp"
                 alt="Echoes of Siam Logo" 
                 className="w-11 h-11 object-contain rounded-full shadow-md ring-1 ring-[#e6c12f]/40" 
               />
@@ -74,6 +74,11 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               <li>
                 <button onClick={() => onNavigate('help')} className="hover:text-[#fef9f3] transition-colors cursor-pointer">
                   ศูนย์ช่วยเหลือและคู่มือการใช้งาน
+                </button>
+              </li>
+              <li>
+                <button onClick={() => onNavigate('export')} className="hover:text-[#fef9f3] transition-colors cursor-pointer">
+                  ดาวน์โหลดข้อมูลเปิด
                 </button>
               </li>
             </ul>
