@@ -48,7 +48,6 @@ const PRESET_TOPICS = [
   { id: 'archaeology', label: 'โบราณคดี & ก่อนประวัติศาสตร์', subject: 'โบราณคดี', subtitle: 'เชื่อมโยงแหล่งขุดค้นและโบราณวัตถุ' },
   { id: 'textiles', label: 'มรดกผ้าทอ & วิถีชน', subject: 'ผ้าทอ', subtitle: 'ภูมิปัญญาผ้าซิ่น ผ้าไหม และชาติพันธุ์' },
   { id: 'pottery', label: 'เครื่องปั้นดินเผา', subject: 'เครื่องปั้นดินเผา', subtitle: 'วิวัฒนาการเครื่องปั้นดินเผาแต่ละลุ่มน้ำ' },
-  { id: 'crafts', label: 'งานประณีตศิลป์ช่างสิบหมู่', subject: 'งานช่างสิบหมู่', subtitle: 'ช่างสิบหมู่ เครื่องทอง และศิลปกรรมหลวง' }
 ];
 
 export const QuickAccessKnowledgeGraph: React.FC<QuickAccessKnowledgeGraphProps> = ({ onNavigate }) => {
