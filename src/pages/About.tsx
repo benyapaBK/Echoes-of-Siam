@@ -113,14 +113,6 @@ export const About: React.FC = () => {
               <strong className="text-[#9c7d5c] block mb-1">HAS_TYPE</strong>
               เชื่อมโยงพิพิธภัณฑ์กับประเภทการบริหารจัดการจริง 9 ประเภท
             </li>
-            <li className="p-3 bg-white rounded-lg border border-[#d7c8b2]">
-              <strong className="text-[#9c7d5c] block mb-1">LOCATED_AT</strong>
-              เชื่อมโยงพิพิธภัณฑ์กับจังหวัดที่มีการระบุในที่อยู่
-            </li>
-            <li className="p-3 bg-white rounded-lg border border-[#d7c8b2]">
-              <strong className="text-[#9c7d5c] block mb-1">CREATED_BY</strong>
-              เชื่อมโยงกับผู้สร้างข้อมูลหรือองค์กรผู้ก่อตั้งเมื่อมีระบุชัดเจน
-            </li>
           </ul>
           <p className="text-[11px] text-[#6f5a45]/80 italic">
             *ระบบปฏิบัติตามหลักการไม่สร้างข้อสันนิษฐานหรือความสัมพันธ์ทางประวัติศาสตร์ขึ้นเองโดยปราศจากหลักฐานเอกสาร
