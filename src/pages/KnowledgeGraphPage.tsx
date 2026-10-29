@@ -30,10 +30,6 @@ import {
   ChevronLeft,
   HelpCircle,
   Plus,
-  Pin,
-  PinOff,
-  Lock,
-  Unlock,
   Play,
   Pause,
   Palette
@@ -117,8 +113,6 @@ export const KnowledgeGraphPage: React.FC<KnowledgeGraphPageProps> = ({
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const cyRef = useRef<Core | null>(null);
-  const pinnedPositionsRef = useRef(new Map<string, { x: number; y: number }>());
-
   // 1. Image Knowledge Graphs Slider State
   const [kgImages, setKgImages] = useState<KnowledgeGraphImage[]>(() => museumStore.getActiveKnowledgeGraphImages());
   const [activeSlideIndex, setActiveSlideIndex] = useState<number>(0);
@@ -146,8 +140,6 @@ export const KnowledgeGraphPage: React.FC<KnowledgeGraphPageProps> = ({
   const [copiedCypher, setCopiedCypher] = useState<boolean>(false);
 
   // 3. Interactive Graph & Pinning State (ลากดึงและคงตำแหน่งไว้ได้)
-  const [pinOnDrag, setPinOnDrag] = useState<boolean>(true);
-  const [pinnedCount, setPinnedCount] = useState<number>(0);
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
   const [selectedEdge, setSelectedEdge] = useState<GraphEdge | null>(null);
   const [activeSubject, setActiveSubject] = useState<string | undefined>(focusSubject);
@@ -269,7 +261,6 @@ export const KnowledgeGraphPage: React.FC<KnowledgeGraphPageProps> = ({
     const elements = [
       ...filteredNodes.map(n => {
         const colorTheme = getNodeColorTheme(n);
-        const pinnedPosition = pinnedPositionsRef.current.get(n.id);
         return {
           data: {
             id: n.id,
@@ -281,10 +272,8 @@ export const KnowledgeGraphPage: React.FC<KnowledgeGraphPageProps> = ({
             bgColor: colorTheme.bgColor,
             borderColor: colorTheme.borderColor,
             textColor: colorTheme.textColor,
-            badgeLabel: colorTheme.badgeLabel,
-            isPinned: Boolean(pinnedPosition)
-          },
-          ...(pinnedPosition ? { position: pinnedPosition, locked: true, classes: 'pinned' } : {})
+            badgeLabel: colorTheme.badgeLabel
+          }
         };
       }),
       ...filteredEdges.map(e => ({
@@ -338,16 +327,6 @@ export const KnowledgeGraphPage: React.FC<KnowledgeGraphPageProps> = ({
             'shadow-opacity': 0.28,
             'transition-property': 'background-color, border-color, width, height',
             'transition-duration': 0.2
-          } as any
-        },
-        {
-          selector: 'node.pinned',
-          style: {
-            'border-width': 4,
-            'border-color': themeColors.accent,
-            'shadow-blur': 20,
-            'shadow-color': themeColors.accent,
-            'shadow-opacity': 0.9
           } as any
         },
         {
@@ -427,31 +406,6 @@ export const KnowledgeGraphPage: React.FC<KnowledgeGraphPageProps> = ({
       neighborhood.addClass('highlighted');
     });
 
-    // Double-click/double-tap to toggle lock/pin
-    let lastTapTime = 0;
-    let lastTappedNodeId = '';
-    cy.on('tap', 'node', (evt: EventObject) => {
-      const now = performance.now();
-      const node = evt.target;
-      if (node.id() === lastTappedNodeId && now - lastTapTime < 340) {
-        if (node.locked()) {
-          node.unlock();
-          node.removeClass('pinned');
-          node.data('isPinned', false);
-          pinnedPositionsRef.current.delete(node.id());
-        } else {
-          node.lock();
-          node.addClass('pinned');
-          node.data('isPinned', true);
-          const position = node.position();
-          pinnedPositionsRef.current.set(node.id(), { x: position.x, y: position.y });
-        }
-        setPinnedCount(cy.nodes('.pinned').length);
-      }
-      lastTapTime = now;
-      lastTappedNodeId = node.id();
-    });
-
     let dragOrigin: { x: number; y: number } | null = null;
     let draggedNeighbors: { node: NodeSingular; position: { x: number; y: number }; weight: number }[] = [];
     let dragDelta = { x: 0, y: 0 };
@@ -464,14 +418,14 @@ export const KnowledgeGraphPage: React.FC<KnowledgeGraphPageProps> = ({
       if (cy.destroyed()) return;
       let maxGap = 0;
       draggedNeighbors.forEach(({ node: neighbor, position: origin, weight }) => {
-        if (neighbor.removed() || neighbor.locked()) return;
+        if (neighbor.removed()) return;
         const current = neighbor.position();
         const targetX = origin.x + dragDelta.x * weight;
         const targetY = origin.y + dragDelta.y * weight;
         const gapX = targetX - current.x;
         const gapY = targetY - current.y;
         maxGap = Math.max(maxGap, Math.abs(gapX), Math.abs(gapY));
-        neighbor.position({ x: current.x + gapX * 0.12, y: current.y + gapY * 0.12 });
+        neighbor.position({ x: current.x + gapX * 0.09, y: current.y + gapY * 0.09 });
       });
       if (followActive || maxGap > 0.4) {
         followFrame = requestAnimationFrame(followStep);
@@ -482,7 +436,6 @@ export const KnowledgeGraphPage: React.FC<KnowledgeGraphPageProps> = ({
 
     cy.on('grab', 'node', (evt: EventObject) => {
       const node = evt.target;
-      node.unlock();
       dragOrigin = node.position();
       dragDelta = { x: 0, y: 0 };
       followActive = true;
@@ -490,16 +443,14 @@ export const KnowledgeGraphPage: React.FC<KnowledgeGraphPageProps> = ({
       const seen = new Set<string>([node.id()]);
       // Group by edges: direct neighbors follow strongly, second-degree neighbors follow softly.
       let frontier: NodeSingular[] = [node];
-      [0.6, 0.25].forEach((weight) => {
+      [0.7, 0.45, 0.22].forEach((weight) => {
         const next: NodeSingular[] = [];
         frontier.forEach((source) => {
           source.neighborhood('node').forEach((neighbor: NodeSingular) => {
-            if (seen.has(neighbor.id()) || draggedNeighbors.length >= 80) return;
+            if (seen.has(neighbor.id()) || draggedNeighbors.length >= 120) return;
             seen.add(neighbor.id());
             next.push(neighbor);
-            if (!neighbor.locked()) {
-              draggedNeighbors.push({ node: neighbor, position: neighbor.position(), weight });
-            }
+            draggedNeighbors.push({ node: neighbor, position: neighbor.position(), weight });
           });
         });
         frontier = next;
@@ -513,17 +464,7 @@ export const KnowledgeGraphPage: React.FC<KnowledgeGraphPageProps> = ({
       dragDelta = { x: position.x - dragOrigin.x, y: position.y - dragOrigin.y };
     });
 
-    // Keep the dragged node fixed, then gently settle nearby nodes into the new graph shape.
-    cy.on('dragfree', 'node', (evt: EventObject) => {
-      const node = evt.target;
-      if (pinOnDrag) {
-        node.lock();
-        node.addClass('pinned');
-        node.data('isPinned', true);
-        const position = node.position();
-        pinnedPositionsRef.current.set(node.id(), { x: position.x, y: position.y });
-        setPinnedCount(cy.nodes('.pinned').length);
-      }
+    cy.on('dragfree', 'node', () => {
       // Let followers finish gliding to rest; the loop clears the group itself.
       followActive = false;
       dragOrigin = null;
@@ -552,13 +493,12 @@ export const KnowledgeGraphPage: React.FC<KnowledgeGraphPageProps> = ({
     });
 
     cyRef.current = cy;
-    setPinnedCount(cy.nodes('.pinned').length);
 
     return () => {
       if (followFrame) cancelAnimationFrame(followFrame);
       cy.destroy();
     };
-  }, [graphData, showMuseums, showSubjects, showTypes, searchQuery, currentLayout, viewMode, pinOnDrag, themeColors]);
+  }, [graphData, showMuseums, showSubjects, showTypes, searchQuery, currentLayout, viewMode, themeColors]);
 
   const handleZoomIn = () => {
     if (viewMode === 'image') {
@@ -595,46 +535,6 @@ export const KnowledgeGraphPage: React.FC<KnowledgeGraphPageProps> = ({
       cyRef.current.elements().removeClass('highlighted dimmed');
       cyRef.current.fit(undefined, 50);
     }
-  };
-
-  const handleLockAll = () => {
-    if (!cyRef.current) return;
-    cyRef.current.nodes().forEach(node => {
-      node.lock();
-      node.addClass('pinned');
-      node.data('isPinned', true);
-      const position = node.position();
-      pinnedPositionsRef.current.set(node.id(), { x: position.x, y: position.y });
-    });
-    setPinnedCount(cyRef.current.nodes('.pinned').length);
-  };
-
-  const handleUnlockAll = () => {
-    if (!cyRef.current) return;
-    cyRef.current.nodes().unlock();
-    cyRef.current.nodes().removeClass('pinned');
-    cyRef.current.nodes().data('isPinned', false);
-    pinnedPositionsRef.current.clear();
-    setPinnedCount(0);
-  };
-
-  const handleToggleSelectedNodePin = () => {
-    if (!cyRef.current || !selectedNode) return;
-    const node = cyRef.current.getElementById(selectedNode.id);
-    if (!node || node.length === 0) return;
-    if (node.locked()) {
-      node.unlock();
-      node.removeClass('pinned');
-      node.data('isPinned', false);
-      pinnedPositionsRef.current.delete(node.id());
-    } else {
-      node.lock();
-      node.addClass('pinned');
-      node.data('isPinned', true);
-      const position = node.position();
-      pinnedPositionsRef.current.set(node.id(), { x: position.x, y: position.y });
-    }
-    setPinnedCount(cyRef.current.nodes('.pinned').length);
   };
 
   const handlePrevSlide = () => {
@@ -1255,12 +1155,6 @@ export const KnowledgeGraphPage: React.FC<KnowledgeGraphPageProps> = ({
                 <span className="text-[11px] text-[#6f5a45] bg-[#ece4d4]/60 px-2 py-0.5 rounded-md font-mono">
                   {graphData.nodes.length} โหนด • {graphData.edges.length} เส้น
                 </span>
-                {pinnedCount > 0 && (
-                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#e6c12f]/20 text-[#5c3d26] border border-[#e6c12f]/60 text-[11px] font-mono font-bold animate-pulse">
-                    <Pin className="w-3 h-3 fill-current" />
-                    <span>ตรึงแล้ว {pinnedCount} โหนด</span>
-                  </span>
-                )}
               </div>
 
               {/* Center: Dynamic Node Scale Selector */}
@@ -1282,40 +1176,6 @@ export const KnowledgeGraphPage: React.FC<KnowledgeGraphPageProps> = ({
 
               {/* Right: Pinning & Viewport Controls */}
               <div className="flex flex-wrap items-center gap-1.5">
-                
-                {/* Pin on Drag Toggle */}
-                <button
-                  onClick={() => setPinOnDrag(p => !p)}
-                  className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg border text-xs font-heading font-medium transition-all cursor-pointer ${
-                    pinOnDrag 
-                      ? 'bg-[#e6c12f] text-[#463629] border-[#e6c12f] font-bold shadow-xs' 
-                      : 'bg-white hover:bg-[#ece4d4] text-[#6f5a45] border-[#d7c8b2]'
-                  }`}
-                  title={pinOnDrag ? "เปิดระบบตรึงตำแหน่ง: เมื่อลากโหนดแล้วจะค้างตำแหน่งไว้ ณ จุดนั้นทันที" : "ปิดระบบตรึงตำแหน่ง: โหนดจะเคลื่อนไหวตามแรงดึงดูดปกติ"}
-                >
-                  <Pin className={`w-3.5 h-3.5 ${pinOnDrag ? 'fill-current text-[#463629]' : 'text-[#9c7d5c]'}`} />
-                  <span className="hidden md:inline">{pinOnDrag ? 'ตรึงเมื่อลาก: เปิด' : 'ตรึงเมื่อลาก: ปิด'}</span>
-                </button>
-
-                <button
-                  onClick={handleLockAll}
-                  className="flex items-center gap-1 px-2 py-1.5 rounded-lg bg-white hover:bg-[#ece4d4] text-[#463629] border border-[#d7c8b2] transition-colors cursor-pointer text-xs"
-                  title="ตรึงทุกโหนดในหน้าจอให้อยู่กับที่"
-                >
-                  <Lock className="w-3.5 h-3.5 text-[#9c7d5c]" />
-                  <span className="hidden lg:inline">ตรึงทั้งหมด</span>
-                </button>
-
-                <button
-                  onClick={handleUnlockAll}
-                  className="flex items-center gap-1 px-2 py-1.5 rounded-lg bg-white hover:bg-[#ece4d4] text-[#463629] border border-[#d7c8b2] transition-colors cursor-pointer text-xs"
-                  title="ปลดล็อกทุกโหนดให้ขยับอิสระได้"
-                >
-                  <Unlock className="w-3.5 h-3.5 text-[#9c7d5c]" />
-                  <span className="hidden lg:inline">ปลดล็อก</span>
-                </button>
-
-                <div className="h-4 w-px bg-[#d7c8b2] mx-0.5" />
 
                 <button
                   onClick={handleZoomIn}
@@ -1407,15 +1267,6 @@ export const KnowledgeGraphPage: React.FC<KnowledgeGraphPageProps> = ({
                     </div>
                   )}
                 </div>
-
-                {/* Node Pin/Freeze Action Button */}
-                <button
-                  onClick={handleToggleSelectedNodePin}
-                  className="w-full py-1.5 px-3 bg-[#ece4d4]/70 hover:bg-[#ece4d4] text-[#463629] rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 border border-[#d7c8b2] transition-colors cursor-pointer"
-                >
-                  <Pin className="w-3.5 h-3.5 text-[#9c7d5c]" />
-                  <span>สลับการตรึงตำแหน่งโหนดนี้ (Pin/Unpin)</span>
-                </button>
 
                 <div className="pt-2 border-t border-[#d7c8b2]/70 flex items-center gap-2">
                   {selectedNode.type === 'Museum' ? (
@@ -1600,43 +1451,6 @@ export const KnowledgeGraphPage: React.FC<KnowledgeGraphPageProps> = ({
                   </select>
                 </div>
 
-                {/* Pin on Drag Toggle */}
-                <button
-                  onClick={() => setPinOnDrag(p => !p)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-heading font-medium transition-colors cursor-pointer ${
-                    pinOnDrag 
-                      ? 'bg-[#e6c12f] text-[#463629] border-[#e6c12f] font-bold shadow-xs' 
-                      : 'bg-[#fffdf7] hover:bg-[#ece4d4] text-[#6f5a45] border-[#d7c8b2]'
-                  }`}
-                  title="เมื่อลากโหนดแล้ว โหนดจะค้างตำแหน่งไว้ ณ จุดนั้นทันที"
-                >
-                  <Pin className={`w-3.5 h-3.5 ${pinOnDrag ? 'fill-current' : ''}`} />
-                  <span>{pinOnDrag ? 'ตรึงเมื่อลาก: เปิด' : 'ตรึงเมื่อลาก: ปิด'}</span>
-                </button>
-
-                <button
-                  onClick={handleLockAll}
-                  className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-white hover:bg-[#ece4d4] text-[#463629] border border-[#d7c8b2] transition-colors cursor-pointer"
-                  title="ตรึงทุกโหนดในหน้าจอ"
-                >
-                  <Lock className="w-3.5 h-3.5 text-[#9c7d5c]" />
-                  <span>ตรึงทั้งหมด</span>
-                </button>
-
-                <button
-                  onClick={handleUnlockAll}
-                  className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-white hover:bg-[#ece4d4] text-[#463629] border border-[#d7c8b2] transition-colors cursor-pointer"
-                  title="ปลดล็อกทุกโหนด"
-                >
-                  <Unlock className="w-3.5 h-3.5 text-[#9c7d5c]" />
-                  <span>ปลดล็อก</span>
-                </button>
-
-                {pinnedCount > 0 && (
-                  <span className="px-2 py-0.5 rounded-full bg-[#e6c12f]/20 text-[#5c3d26] border border-[#e6c12f]/60 font-mono font-bold text-[11px]">
-                    ตรึง {pinnedCount} โหนด
-                  </span>
-                )}
               </div>
 
               {/* Search within graph */}
@@ -1759,15 +1573,6 @@ export const KnowledgeGraphPage: React.FC<KnowledgeGraphPageProps> = ({
                     </div>
                   )}
                 </div>
-
-                {/* Node Pin/Freeze Action Button */}
-                <button
-                  onClick={handleToggleSelectedNodePin}
-                  className="w-full py-1.5 px-3 bg-[#ece4d4]/70 hover:bg-[#ece4d4] text-[#463629] rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 border border-[#d7c8b2] transition-colors cursor-pointer"
-                >
-                  <Pin className="w-3.5 h-3.5 text-[#9c7d5c]" />
-                  <span>สลับการตรึงตำแหน่งโหนดนี้ (Pin/Unpin)</span>
-                </button>
 
                 <div className="pt-2 border-t border-[#d7c8b2]/70 flex items-center gap-2">
                   {selectedNode.type === 'Museum' ? (

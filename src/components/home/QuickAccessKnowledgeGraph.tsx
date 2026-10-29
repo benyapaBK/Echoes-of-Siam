@@ -62,6 +62,7 @@ export const QuickAccessKnowledgeGraph: React.FC<QuickAccessKnowledgeGraphProps>
   const visualEdgesRef = useRef<VisualEdge[]>([]);
   const animFrameIdRef = useRef<number | null>(null);
   const isDraggingRef = useRef(false);
+  const settleFramesRef = useRef(0);
   const draggedNodeIndexRef = useRef<number | null>(null);
 
   // 1. Fetch real graph data subset with low latency
@@ -137,7 +138,8 @@ export const QuickAccessKnowledgeGraph: React.FC<QuickAccessKnowledgeGraphProps>
       const vEdges = visualEdgesRef.current;
 
       // Physics layout relaxation (first 120 frames or during drag)
-      if (iteration < 180 || isDraggingRef.current) {
+      if (iteration < 180 || isDraggingRef.current || settleFramesRef.current > 0) {
+        if (!isDraggingRef.current && settleFramesRef.current > 0) settleFramesRef.current--;
         const centerX = width / 2;
         const centerY = height / 2;
 
@@ -315,7 +317,6 @@ export const QuickAccessKnowledgeGraph: React.FC<QuickAccessKnowledgeGraphProps>
       if (dist < vNodes[i].radius + 10) {
         draggedNodeIndexRef.current = i;
         isDraggingRef.current = true;
-        vNodes[i].isPinned = true;
         setSelectedNode(vNodes[i]);
         (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
         break;
@@ -353,6 +354,7 @@ export const QuickAccessKnowledgeGraph: React.FC<QuickAccessKnowledgeGraphProps>
   const handlePointerUp = () => {
     isDraggingRef.current = false;
     draggedNodeIndexRef.current = null;
+    settleFramesRef.current = 120;
   };
 
   // Connected neighbors for currently active node
