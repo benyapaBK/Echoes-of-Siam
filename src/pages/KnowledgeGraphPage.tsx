@@ -453,33 +453,64 @@ export const KnowledgeGraphPage: React.FC<KnowledgeGraphPageProps> = ({
     });
 
     let dragOrigin: { x: number; y: number } | null = null;
-    let draggedNeighbors: { node: NodeSingular; position: { x: number; y: number } }[] = [];
+    let draggedNeighbors: { node: NodeSingular; position: { x: number; y: number }; weight: number }[] = [];
+    let dragDelta = { x: 0, y: 0 };
+    let followFrame = 0;
+    let followActive = false;
+
+    // Eased follow loop: connected nodes glide toward their target offset instead of snapping.
+    const followStep = () => {
+      followFrame = 0;
+      if (cy.destroyed()) return;
+      let maxGap = 0;
+      draggedNeighbors.forEach(({ node: neighbor, position: origin, weight }) => {
+        if (neighbor.removed() || neighbor.locked()) return;
+        const current = neighbor.position();
+        const targetX = origin.x + dragDelta.x * weight;
+        const targetY = origin.y + dragDelta.y * weight;
+        const gapX = targetX - current.x;
+        const gapY = targetY - current.y;
+        maxGap = Math.max(maxGap, Math.abs(gapX), Math.abs(gapY));
+        neighbor.position({ x: current.x + gapX * 0.12, y: current.y + gapY * 0.12 });
+      });
+      if (followActive || maxGap > 0.4) {
+        followFrame = requestAnimationFrame(followStep);
+      } else {
+        draggedNeighbors = [];
+      }
+    };
 
     cy.on('grab', 'node', (evt: EventObject) => {
       const node = evt.target;
       node.unlock();
       dragOrigin = node.position();
+      dragDelta = { x: 0, y: 0 };
+      followActive = true;
       draggedNeighbors = [];
-      node.neighborhood('node').forEach((neighbor: NodeSingular, index: number) => {
-        if (index >= 24 || neighbor.locked()) return;
-        draggedNeighbors.push({ node: neighbor, position: neighbor.position() });
+      const seen = new Set<string>([node.id()]);
+      // Group by edges: direct neighbors follow strongly, second-degree neighbors follow softly.
+      let frontier: NodeSingular[] = [node];
+      [0.6, 0.25].forEach((weight) => {
+        const next: NodeSingular[] = [];
+        frontier.forEach((source) => {
+          source.neighborhood('node').forEach((neighbor: NodeSingular) => {
+            if (seen.has(neighbor.id()) || draggedNeighbors.length >= 80) return;
+            seen.add(neighbor.id());
+            next.push(neighbor);
+            if (!neighbor.locked()) {
+              draggedNeighbors.push({ node: neighbor, position: neighbor.position(), weight });
+            }
+          });
+        });
+        frontier = next;
       });
+      if (!followFrame) followFrame = requestAnimationFrame(followStep);
     });
 
     cy.on('drag', 'node', (evt: EventObject) => {
       if (!dragOrigin) return;
-      const node = evt.target;
-      const position = node.position();
-      const deltaX = position.x - dragOrigin.x;
-      const deltaY = position.y - dragOrigin.y;
-
-      draggedNeighbors.forEach(({ node: neighbor, position: origin }) => {
-        if (neighbor.removed() || neighbor.locked()) return;
-        neighbor.position({
-          x: origin.x + deltaX * 0.28,
-          y: origin.y + deltaY * 0.28
-        });
-      });
+      const position = evt.target.position();
+      dragDelta = { x: position.x - dragOrigin.x, y: position.y - dragOrigin.y };
     });
 
     // Keep the dragged node fixed, then gently settle nearby nodes into the new graph shape.
@@ -492,21 +523,11 @@ export const KnowledgeGraphPage: React.FC<KnowledgeGraphPageProps> = ({
         const position = node.position();
         pinnedPositionsRef.current.set(node.id(), { x: position.x, y: position.y });
         setPinnedCount(cy.nodes('.pinned').length);
-        node.closedNeighborhood().layout({
-          name: 'cose',
-          animate: true,
-          animationDuration: 450,
-          fit: false,
-          padding: 24,
-          randomize: false,
-          nodeRepulsion: () => 2600,
-          idealEdgeLength: () => 90,
-          edgeElasticity: () => 100,
-          numIter: 90
-        }).run();
       }
+      // Let followers finish gliding to rest; the loop clears the group itself.
+      followActive = false;
       dragOrigin = null;
-      draggedNeighbors = [];
+      if (!followFrame) followFrame = requestAnimationFrame(followStep);
     });
 
     cy.on('tap', 'edge', (evt: EventObject) => {
@@ -534,6 +555,7 @@ export const KnowledgeGraphPage: React.FC<KnowledgeGraphPageProps> = ({
     setPinnedCount(cy.nodes('.pinned').length);
 
     return () => {
+      if (followFrame) cancelAnimationFrame(followFrame);
       cy.destroy();
     };
   }, [graphData, showMuseums, showSubjects, showTypes, searchQuery, currentLayout, viewMode, pinOnDrag, themeColors]);
